@@ -1,29 +1,32 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+import uuid
+from django.core.validators import RegexValidator
 
 # Patient model
 class Patient(models.Model):
     patient_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    first_name = models.TextField(max_length=255, null=False, blank=False)
-    last_name = models.TextField(max_length=255, null=False, blank=False)
+    first_name = models.CharField(max_length=255, null=False, blank=False)
+    last_name = models.CharField(max_length=255, null=False, blank=False)
     date_of_birth = models.DateField(null=False, blank=False)
-    phone_number = models.TextField(max_length=10, null=False),
-    address = models.TextField(max_length=100, null=False, blank=False)
+    phone_number = models.CharField(
+        max_length=10,
+        validators=[RegexValidator(regex=r'^\d{10}$', message='Phone number must be exactly 10 digits.')]
+    )
+    address = models.CharField(max_length=100, null=False, blank=False, default='')
 
 # Clinic model
 class Clinic(models.Model):
     clinic_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.models.TextField(max_length=255, null=False, blank=False)
-    address = models.models.TextField(max_length=255, null=False, blank=False)
-    phone_number = models.TextField(max_length=255, null=False, blank=False)
+    name = models.CharField(max_length=255, null=False, blank=False)
+    address = models.CharField(max_length=255, null=False, blank=False)
+    phone_number = models.CharField(max_length=255, null=False, blank=False)
 
 # ED (Emergency Department) model
 class ED(models.Model):
     ed_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.TextField(max_length=255, null=False, blank=False)
-    address = models.models.TextField(max_length=255, null=False, blank=False)
-    phone_number = models.TextField(max_length=255, null=False, blank=False)
+    name = models.CharField(max_length=255, null=False, blank=False)
+    address = models.CharField(max_length=255, null=False, blank=False, default='')
 
 # ED Capacity model
 class EDCapacity(models.Model):
