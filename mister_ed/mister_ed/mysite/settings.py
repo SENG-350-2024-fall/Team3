@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "mister_ed.apps.MisterEdConfig",
+    "crispy_forms",
+    "crispy_bootstrap5",
+    "rest_framework"
 ]
 
 MIDDLEWARE = [
@@ -127,3 +130,6 @@ LOGOUT_REDIRECT_URL = '/login'
 STATICFILES_DIRS = [
     Path(BASE_DIR, 'home', 'static')
 ]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
