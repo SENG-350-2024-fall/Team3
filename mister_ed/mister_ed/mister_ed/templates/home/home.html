@@ -2,81 +2,134 @@
 <html>
 <head>
     <title>Home</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
         }
         .container {
+            margin-top: 20px;
+        }
+        .triage-container {
             text-align: center;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 40px auto;
         }
-        .container h1 {
+        .triage-container h1 {
             margin-bottom: 20px;
+            font-size: 2.5em;
+            color: #333;
         }
-        .container button {
-            padding: 10px 20px;
+        .triage-container button {
+            padding: 12px 24px;
             background-color: #007bff;
             color: #fff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
         }
-        .container button:hover {
+        .triage-container button:hover {
             background-color: #0056b3;
         }
-        .question {
+        .triage-container .question {
             margin-top: 20px;
             display: none;
         }
-        .question p {
-            font-size: 18px;
-            margin-bottom: 10px;
+        .triage-container .question p {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
         }
-        .question button {
-            margin: 5px;
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
+        .triage-container .question label {
+            display: block;
+            margin: 10px 0;
+            font-size: 1em;
+            color: #555;
         }
-        .question button:hover {
-            background-color: #218838;
+        .triage-container .question button {
+            margin-top: 20px;
         }
-        .question button.false {
-            background-color: #dc3545;
+        .navbar-brand {
+            font-weight: bold;
         }
-        .question button.false:hover {
-            background-color: #c82333;
+        .navbar-nav .nav-link {
+            margin-right: 10px;
+        }
+        .navbar-text {
+            margin-right: 10px;
+        }
+        .bold {
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to Virtual Triage</h1>
-        <button id="start-triage">Start Virtual Triage</button>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light p-2">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/home">Mister ED</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/home">Home</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <span class="navbar-text">Logged in as {{ user.username }} | </span>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="triage-container">
+        <h1>Virtual Triage</h1>
+        <button id="start-triage" onclick="hideButton()"> Start </button>
         <div class="question" id="triage-question">
-            <p>Are you about to die?</p>
-            <button class="true">True</button>
-            <button class="false">False</button>
+            <p class="bold">How sick are you?</p>
+            <form id="question-form">
+                <label>
+                    <input type="radio" name="answer" value="true" required>
+                    Highly sick.
+                </label>
+                    <label>
+                    <input type="radio" name="answer" value="true" required>
+                    Normally sick.
+                </label>
+                    <label>
+                    <input type="radio" name="answer" value="true" required>
+                    Not that sick.
+                </label>
+            </form>
+            <button> Next </button>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         document.getElementById('start-triage').addEventListener('click', function() {
             document.getElementById('triage-question').style.display = 'block';
         });
+        function hideButton() {
+            document.getElementById('start-triage').style.display = 'none';
+        }
     </script>
 </body>
 </html>
