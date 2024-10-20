@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "mister_ed.apps.MisterEdConfig",
+    "crispy_forms",
+    "crispy_bootstrap5",
+    "rest_framework"
 ]
 
 MIDDLEWARE = [
@@ -120,3 +123,13 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOGIN_REDIRECT_URL = '/home'
+LOGOUT_REDIRECT_URL = '/login'
+
+STATICFILES_DIRS = [
+    Path(BASE_DIR, 'home', 'static')
+]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
