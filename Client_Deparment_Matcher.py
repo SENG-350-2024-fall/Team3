@@ -1,6 +1,5 @@
 import sqlite3
 from math import radians, cos, sin, sqrt, atan2
-from datetime import datetime
 
 # Haversine formula to calculate the distance between two lat/lng coordinates
 def haversine(lat1, lng1, lat2, lng2):
@@ -19,20 +18,22 @@ class Client:
         self.lng = lng
         self.required_service = required_service
 
-# Function to find the top 3 best appointments
+# Function to find the top 3 best appointments (only available ones)
 def find_best_appointments(client):
     # Connect to the SQLite database
     conn = sqlite3.connect('Database/clinic_appointments_realistic.db')
     cursor = conn.cursor()
 
-    # Step 1: Fetch all appointments that match the required service
+    # Step 1: Fetch all available (non-booked) appointments that match the required service
     query = '''
-        SELECT Clinic.name, Clinic.lat, Clinic.lng, Schedule.available_date, Schedule.available_time, Doctor.name, Service.service_name
+        SELECT Schedule.id, Clinic.name, Clinic.lat, Clinic.lng, 
+               Schedule.available_date, Schedule.available_time, 
+               Doctor.name, Service.service_name
         FROM Schedule
         JOIN Clinic ON Schedule.clinic_id = Clinic.id
         JOIN Doctor ON Schedule.doctor_id = Doctor.id
         JOIN Service ON Schedule.service_id = Service.id
-        WHERE Service.service_name = ?
+        WHERE Service.service_name = ? AND Schedule.is_booked = 0
     '''
     cursor.execute(query, (client.required_service,))
     appointments = cursor.fetchall()
@@ -40,14 +41,13 @@ def find_best_appointments(client):
     # Step 2: Calculate the distance between the client and each clinic
     appointment_data = []
     for appointment in appointments:
-        clinic_name, clinic_lat, clinic_lng, available_date, available_time, doctor_name, service_name = appointment
+        schedule_id, clinic_name, clinic_lat, clinic_lng, available_date, available_time, doctor_name, service_name = appointment
         distance = haversine(client.lat, client.lng, clinic_lat, clinic_lng)
         
         # Combine the appointment data with the calculated distance
         appointment_data.append({
+            'schedule_id': schedule_id,
             'clinic_name': clinic_name,
-            'clinic_lat': clinic_lat,
-            'clinic_lng': clinic_lng,
             'available_date': available_date,
             'available_time': available_time,
             'doctor_name': doctor_name,
@@ -66,6 +66,26 @@ def find_best_appointments(client):
 
     return top_appointments
 
+# Function to book the selected appointment and update the database
+def book_appointment(schedule_id):
+    # Connect to the SQLite database
+    conn = sqlite3.connect('Database/clinic_appointments_realistic.db')
+    cursor = conn.cursor()
+
+    # Update the selected appointment to mark it as booked
+    update_query = '''
+        UPDATE Schedule
+        SET is_booked = 1
+        WHERE id = ?
+    '''
+    cursor.execute(update_query, (schedule_id,))
+    
+    # Commit the changes and close the database connection
+    conn.commit()
+    conn.close()
+
+    print(f"Appointment with ID {schedule_id} has been successfully booked.")
+
 # Example usage
 if __name__ == "__main__":
     # Create a client instance with their location and required service
@@ -74,10 +94,11 @@ if __name__ == "__main__":
     # Find the best appointments for this client
     best_appointments = find_best_appointments(client)
 
-    # Print the top 3 appointments
+    # Show the top 3 appointments
     print("Top 3 Best Appointments for:", client.name)
     for i, appointment in enumerate(best_appointments, 1):
         print(f"Option {i}:")
+        print(f"  Appointment ID: {appointment['schedule_id']}")
         print(f"  Clinic: {appointment['clinic_name']}")
         print(f"  Doctor: {appointment['doctor_name']}")
         print(f"  Service: {appointment['service_name']}")
@@ -85,3 +106,10 @@ if __name__ == "__main__":
         print(f"  Time: {appointment['available_time']}")
         print(f"  Distance: {appointment['distance']:.2f} km")
         print()
+
+    # Let the user select an appointment
+    option = int(input("Select an option (1, 2, or 3) to book the appointment: ")) - 1
+    selected_appointment = best_appointments[option]
+    
+    # Book the selected appointment
+    book_appointment(selected_appointment['schedule_id'])

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 conn = sqlite3.connect('Database/clinic_appointments_realistic.db')
 cursor = conn.cursor()
 
-# Drop tables if exist to avoid conflicts in testing
+# Drop tables if they exist to avoid conflicts in testing
 cursor.execute('DROP TABLE IF EXISTS Clinic')
 cursor.execute('DROP TABLE IF EXISTS Doctor')
 cursor.execute('DROP TABLE IF EXISTS Service')
@@ -51,6 +51,7 @@ cursor.execute('''
         available_date TEXT NOT NULL,
         available_time TEXT NOT NULL,
         service_id INTEGER NOT NULL,
+        is_booked INTEGER DEFAULT 0,  -- New field to track if the appointment is booked
         FOREIGN KEY (doctor_id) REFERENCES Doctor (id),
         FOREIGN KEY (clinic_id) REFERENCES Clinic (id),
         FOREIGN KEY (service_id) REFERENCES Service (id)
@@ -97,7 +98,7 @@ services = [
     ('Skin Biopsy', 3),  # Dr. Emily Wong
 ]
 
-# Function to generate scarce schedules
+# Function to generate scarce schedules with some booked and some available slots
 def generate_scarce_schedules(doctor_id, clinic_id, service_id, num_weeks=4):
     schedules = []
     # Sparse schedule: only 1-2 days per week, 1-2 slots per day
@@ -113,7 +114,9 @@ def generate_scarce_schedules(doctor_id, clinic_id, service_id, num_weeks=4):
         time_slots = choice([['09:00', '10:00'], ['14:00'], ['11:00', '12:00']])
         
         for time in time_slots:
-            schedules.append((doctor_id, clinic_id, date, time, service_id))
+            # Randomly mark some slots as booked (is_booked = 1) and some as available (is_booked = 0)
+            is_booked = choice([0, 1])  # Randomly decide if the slot is booked or available
+            schedules.append((doctor_id, clinic_id, date, time, service_id, is_booked))
     
     return schedules
 
@@ -147,14 +150,14 @@ cursor.executemany('''
     VALUES (?, ?)
 ''', services)
 
-# Insert scarce schedule data into Schedule table
+# Insert scarce schedule data into Schedule table with `is_booked` field
 cursor.executemany('''
-    INSERT INTO Schedule (doctor_id, clinic_id, available_date, available_time, service_id)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO Schedule (doctor_id, clinic_id, available_date, available_time, service_id, is_booked)
+    VALUES (?, ?, ?, ?, ?, ?)
 ''', schedule_data)
 
 # Commit and close
 conn.commit()
 conn.close()
 
-print("Database updated with more realistic, scarce appointment schedules.")
+print("Database updated with all time slots, including booked and available appointments.")
