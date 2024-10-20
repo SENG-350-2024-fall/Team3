@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .triage-container {
+            text-align: center;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 40px auto;
+        }
+        .triage-container h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            color: #333;
+        }
+        .triage-container button {
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+        .triage-container button:hover {
+            background-color: #0056b3;
+        }
+        .triage-container .question {
+            margin-top: 20px;
+            display: none;
+        }
+        .triage-container .question p {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+        .triage-container .question label {
+            display: block;
+            margin: 10px 0;
+            font-size: 1em;
+            color: #555;
+        }
+        .triage-container .question button {
+            margin-top: 20px;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .navbar-nav .nav-link {
+            margin-right: 10px;
+        }
+        .navbar-text {
+            margin-right: 10px;
+        }
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light p-2">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/home">Mister ED</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/home">Home</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <span class="navbar-text">Logged in as {{ user.username }} | </span>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="triage-container">
+        <h1>Virtual Triage</h1>
+        <button id="start-triage" onclick="hideButton()"> Start </button>
+        <div class="question" id="triage-question">
+            <p class="bold">How sick are you?</p>
+            <form id="question-form">
+                <label>
+                    <input type="radio" name="answer" value="true" required>
+                    Highly sick.
+                </label>
+                    <label>
+                    <input type="radio" name="answer" value="true" required>
+                    Normally sick.
+                </label>
+                    <label>
+                    <input type="radio" name="answer" value="true" required>
+                    Not that sick.
+                </label>
+            </form>
+            <button> Next </button>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('start-triage').addEventListener('click', function() {
+            document.getElementById('triage-question').style.display = 'block';
+        });
+        function hideButton() {
+            document.getElementById('start-triage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
