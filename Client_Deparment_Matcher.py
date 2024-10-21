@@ -94,22 +94,33 @@ if __name__ == "__main__":
     # Find the best appointments for this client
     best_appointments = find_best_appointments(client)
 
-    # Show the top 3 appointments
-    print("Top 3 Best Appointments for:", client.name)
-    for i, appointment in enumerate(best_appointments, 1):
-        print(f"Option {i}:")
-        print(f"  Appointment ID: {appointment['schedule_id']}")
-        print(f"  Clinic: {appointment['clinic_name']}")
-        print(f"  Doctor: {appointment['doctor_name']}")
-        print(f"  Service: {appointment['service_name']}")
-        print(f"  Date: {appointment['available_date']}")
-        print(f"  Time: {appointment['available_time']}")
-        print(f"  Distance: {appointment['distance']:.2f} km")
-        print()
+    # Check if there are available appointments
+    if not best_appointments:
+        print("No available appointments found.")
+    else:
+        # Show the top available appointments (could be less than 3)
+        print(f"Top {len(best_appointments)} Best Appointments for:", client.name)
+        for i, appointment in enumerate(best_appointments, 1):
+            print(f"Option {i}:")
+            print(f"  Appointment ID: {appointment['schedule_id']}")
+            print(f"  Clinic: {appointment['clinic_name']}")
+            print(f"  Doctor: {appointment['doctor_name']}")
+            print(f"  Service: {appointment['service_name']}")
+            print(f"  Date: {appointment['available_date']}")
+            print(f"  Time: {appointment['available_time']}")
+            print(f"  Distance: {appointment['distance']:.2f} km")
+            print()
 
-    # Let the user select an appointment
-    option = int(input("Select an option (1, 2, or 3) to book the appointment: ")) - 1
-    selected_appointment = best_appointments[option]
-    
-    # Book the selected appointment
-    book_appointment(selected_appointment['schedule_id'])
+        # Ask the user to select an appointment
+        while True:
+            try:
+                option = int(input(f"Select an option (1 to {len(best_appointments)}) to book the appointment: ")) - 1
+                if option < 0 or option >= len(best_appointments):
+                    raise IndexError
+                selected_appointment = best_appointments[option]
+                break
+            except (ValueError, IndexError):
+                print(f"Invalid selection. Please enter a number between 1 and {len(best_appointments)}.")
+
+        # Book the selected appointment
+        book_appointment(selected_appointment['schedule_id'])
