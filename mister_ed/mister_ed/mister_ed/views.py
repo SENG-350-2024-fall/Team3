@@ -8,8 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
-from django.contrib.auth import login as auth_login
-from .forms import RegisterForm
+from django.contrib.auth import login
+from .forms import SignupForm
 
 @login_required(login_url="/login") 
 def home(request):
@@ -25,11 +25,10 @@ def signup(request):
     if request.user.is_authenticated:
         return redirect('/home')
     elif request.method == "POST":
-        form = RegisterForm(request.POST)
+        form = SignupForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            auth_login(request, user)
-            return redirect('/home')
+            form.save()
+            return redirect('/home')  # Redirect to the home page after successful registration
     else:
-        form = RegisterForm()
-    return render(request, 'registration/signup.html', {"form": form})
+        form = SignupForm()
+    return render(request, 'registration/signup.html', {'form': form})
