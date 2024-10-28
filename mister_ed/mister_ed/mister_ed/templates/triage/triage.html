@@ -28,15 +28,24 @@
         const form = document.getElementById(`question-form-${currentQuestion}`);
         if (form.checkValidity()) {
             document.getElementById(`triage-question-${currentQuestion}`).style.display = 'none';
-            if (currentQuestion == 2) {
-                document.getElementById('triage-question-specific-symptoms').style.display = 'block';
-                const form2 = new FormData(document.getElementById('question-form-2'));
-                form2.forEach((value, key) => {
-                    document.getElementById(`${value}-questions`).style.display = 'block';
-                });
-            }
-            else {
-                document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
+            switch (currentQuestion) {
+                case 1:
+                    const form1 = new FormData(document.getElementById('question-form-1'));
+                    if (form1.getAll('severe-symptoms').length > 0) {
+                        alert('Alerting to notify you to go to the nearest emergency room. Replace this alert with a proper page redirect.');
+                    } else {
+                        document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
+                    }
+                    break;
+                case 2:
+                    document.getElementById('triage-question-specific-symptoms').style.display = 'block';
+                    const form2 = new FormData(document.getElementById('question-form-2'));
+                    form2.forEach((value, key) => {
+                        document.getElementById(`${value}-questions`).style.display = 'block';
+                    });
+                    break;
+                default:
+                    document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
             }
             
         } else {
