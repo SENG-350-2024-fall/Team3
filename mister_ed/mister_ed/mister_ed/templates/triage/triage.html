@@ -13,6 +13,7 @@
     {% include "triage/triage_question_1.html" %}
     {% include "triage/triage_question_2.html" %}
     {% include "triage/triage_question_3.html" %}
+    {% include "triage/triage_question_specific_symptoms.html" %}
 </div>
 {% endblock %}
 
@@ -27,7 +28,17 @@
         const form = document.getElementById(`question-form-${currentQuestion}`);
         if (form.checkValidity()) {
             document.getElementById(`triage-question-${currentQuestion}`).style.display = 'none';
-            document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
+            if (currentQuestion == 2) {
+                document.getElementById('triage-question-specific-symptoms').style.display = 'block';
+                const form2 = new FormData(document.getElementById('question-form-2'));
+                form2.forEach((value, key) => {
+                    document.getElementById(`${value}-questions`).style.display = 'block';
+                });
+            }
+            else {
+                document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
+            }
+            
         } else {
             form.reportValidity();
         }
