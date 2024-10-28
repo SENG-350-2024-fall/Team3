@@ -1,280 +1,43 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Home</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-        }
-        .container {
-            margin-top: 20px;
-        }
-        .triage-container {
-            text-align: center;
-            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin: 40px auto;
-        }
-        .triage-container h1 {
-            margin-bottom: 20px;
-            font-size: 2.5em;
-            color: #333;
-        }
-        .triage-container button {
-            padding: 12px 24px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 18px;
-            transition: background-color 0.3s ease;
-        }
-        .triage-container button:hover {
-            background-color: #0056b3;
-        }
-        .triage-container .question {
-            margin-top: 20px;
-            display: none;
-        }
-        .triage-container .question p {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
-        }
-        .triage-container .question label {
-            display: block;
-            margin: 10px 0;
-            font-size: 1em;
-            color: #555;
-        }
-        .triage-container .question button {
-            margin-top: 20px;
-        }
-        .navbar-brand {
-            font-weight: bold;
-        }
-        .navbar-nav .nav-link {
-            margin-right: 10px;
-        }
-        .navbar-text {
-            margin-right: 10px;
-        }
-        .bold {
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light p-2">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/home">Mister ED</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/home">Home</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                    <span class="navbar-text">Logged in as {{ user.username }} | </span>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/logout">Logout</a>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">Login</a>
-                    </li>
-                    {% endif %}
-                </ul>
+{% extends "home/base.html" %}
+
+{% block title %}Patient Home{% endblock %}
+
+{% block content %}
+<div class="jumbotron mt-4">
+    <h1 class="display-4">Welcome to Mister ED</h1>
+    <p class="lead">Your go-to platform for virtual triage and personal health management.</p>
+    <hr class="my-4">
+    <p>Get started by navigating through the options below:</p>
+    <a class="btn btn-primary btn-lg" href="/triage" role="button">Start Triage</a>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Virtual Triage</h5>
+                <p class="card-text">Start a virtual triage session to assess your symptoms and get recommendations.</p>
+                <a href="/triage" class="btn btn-primary">Start Triage</a>
             </div>
         </div>
-    </nav>
-    <div class="triage-container">
-        <h1>Virtual Triage</h1>
-        <button id="start-triage" onclick="startTriage()"> Start </button>
-
-        <div class="question" id="triage-question-1" style="display:none;">
-            <p class="bold">How sick are you?</p>
-            <form id="question-form-1">
-                <label>
-                    <input type="radio" name="severity" value="5" required>
-                    Highly sick
-                </label>
-                <label>
-                    <input type="radio" name="severity" value="3" required>
-                    Normally sick
-                </label>
-                <label>
-                    <input type="radio" name="severity" value="1" required>
-                    Not that sick
-                </label>
-            </form>
-            <button onclick="nextQuestion(1)">Next</button>
-        </div>
-
-        <div class="question" id="triage-question-2" style="display:none;">
-            <p class="bold">Please check all that applies.</p>
-            <form id="question-form-2">
-                <label>
-                    <input type="checkbox" name="symptoms" value="1">
-                    Nausea / Vomiting
-                </label>
-                <label>
-                    <input type="checkbox" name="symptoms" value="2">
-                    Diarrhea
-                </label>
-                <label>
-                    <input type="checkbox" name="symptoms" value="3">
-                    Bleeding
-                </label>
-                <label>
-                    <input type="checkbox" name="symptoms" value="4">
-                    Broken Bones / Fractures
-                </label>
-                <label>
-                    <input type="checkbox" name="symptoms" value="1">
-                    Dizziness
-                </label>
-                <label>
-                    <input type="checkbox" name="symptoms" value="4">
-                    Fainting
-                </label>
-            </form>
-            <button onclick="nextQuestion(2)">Next</button>
-        </div>
-
-        <div class="question" id="triage-question-3" style="display:none;">
-            <p class="bold">How long have you been feeling this way?</p>
-            <form id="question-form-3">
-                <label>
-                    <input type="radio" name="duration" value="2" required>
-                    Less than a day
-                </label>
-                <label>
-                    <input type="radio" name="duration" value="3" required>
-                    1-3 days
-                </label>
-                <label>
-                    <input type="radio" name="duration" value="4" required>
-                    3-7 days
-                </label>
-                <label>
-                    <input type="radio" name="duration" value="5" required>
-                    More than a week
-                </label>
-            </form>
-            <button onclick="nextQuestion(3)">Next</button>
-        </div>
-        
-        <div class="question" id="triage-question-4" style="display:none;">
-            <p class="bold">Please describe any additional symptoms.</p>
-            <form id="question-form-4">
-                <textarea name="additionalSymptoms" rows="4" cols="50"></textarea>
-            </form>
-            <button onclick="submitTriage()">Submit</button>
-        </div>
-
-        <div class="question" id="assessment" style="display:none;">
-            <p class="bold" id="submission"></p>
-            <p style="font-style: italic;" id="assessment-text"></p>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">My Medical Records</h5>
+                <p class="card-text">Access and manage your personal medical records securely and efficiently.</p>
+                <a href="/my-records" class="btn btn-primary">View Records</a>
+            </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        function startTriage() {
-            document.getElementById('start-triage').style.display = 'none';
-            document.getElementById('triage-question-1').style.display = 'block';
-        }
-
-        function nextQuestion(currentQuestion) {
-            const form = document.getElementById(`question-form-${currentQuestion}`);
-            if (form.checkValidity()) {
-                document.getElementById(`triage-question-${currentQuestion}`).style.display = 'none';
-                document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
-            } else {
-                form.reportValidity();
-            }
-        }
-
-        function submitTriage() {
-            document.getElementById('triage-question-4').style.display = 'none';
-            document.getElementById('assessment').style.display = 'block';
-            document.getElementById('submission').innerHTML = 'Your virtual triage has been submitted successfully!'
-
-            const form1 = new FormData(document.getElementById('question-form-1'));
-            const form2 = document.getElementById('question-form-2') == null ? null : new FormData(document.getElementById('question-form-2'));
-            const form3 = new FormData(document.getElementById('question-form-3'));
-            const form4 = document.getElementById('question-form-4') == null ? null : new FormData(document.getElementById('question-form-4'));
-
-            const severity = form1.get('severity');
-            const symptoms = form2.getAll('symptoms');
-            const symptomsSum = symptoms.reduce((a, b) => parseInt(a) + parseInt(b), 0);
-            const duration = form3.get('duration');
-            const additional = form4 == null ? null : form4.get('additionalSymptoms');
-
-            const data = {
-                severity: severity,
-                symptoms: symptomsSum,
-                duration: duration,
-                additional: additional
-            };
-
-            console.log(severity);
-            console.log(symptomsSum);
-            console.log(duration);
-            console.log(additional);
-
-            const priorityScore = severity * 0.5 + symptomsSum * 0.3 + duration * 0.2;
-            console.log(priorityScore);
-
-            let assessmentText = '';
-            if (priorityScore < 2) {
-                assessmentText = 
-                    'at this time, you do not require medical attention at the emergency department. Please monitor your symptoms and seek medical attention if they worsen.';
-            } else if (priorityScore < 5) {
-                assessmentText = 'you may require medical assistance with a healthcare provider. Please monitor your symptoms and seek medical attention if they worsen.';
-            } else {
-                assessmentText = 'you require immediate medical attention. Please proceed to the nearest emergency department.';
-            }
-
-            document.getElementById('assessment-text').innerHTML = 
-                `We've determined that ${assessmentText}`;
-
-            // const data = {
-            //     severity: severity,
-            //     duration: duration,
-            //     symptoms: symptoms,
-            //     additional_notes: ''
-            // };
-
-            // fetch('/triage/', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'X-CSRFToken': '{{ csrf_token }}'
-            //     },
-            //     body: JSON.stringify(data)
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     alert('Triage submitted successfully!');
-            //     window.location.href = '/home';
-            // })
-            // .catch(error => {
-            //     console.error('Error:', error);
-            // });
-        }
-    </script>
-</body>
-</html>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Health Resources</h5>
+                <p class="card-text">Explore health resources to stay informed about your health.</p>
+                <a href="/resources" class="btn btn-primary">Explore Resources</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

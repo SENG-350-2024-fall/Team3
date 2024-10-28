@@ -1,0 +1,82 @@
+{% extends "home/base.html" %}
+
+{% block title %}Virtual Triage{% endblock %}
+
+{% block content %}
+<div class="triage-container my-5 mx-4">
+    <h1 class="display-4 text-center">Virtual Triage</h1>
+    <p class="lead text-center">Answer the following questions to help us assess your condition.</p>
+    <div class="d-flex justify-content-center align-items-center mt-4">
+        <button id="start-triage" class="btn btn-primary btn-lg w-25" onclick="startTriage()">Start</button>
+    </div>
+
+    {% include "triage/triage_question_1.html" %}
+    {% include "triage/triage_question_2.html" %}
+    {% include "triage/triage_question_3.html" %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function startTriage() {
+        document.getElementById('start-triage').style.display = 'none';
+        document.getElementById('triage-question-1').style.display = 'block';
+    }
+
+    function nextQuestion(currentQuestion) {
+        const form = document.getElementById(`question-form-${currentQuestion}`);
+        if (form.checkValidity()) {
+            document.getElementById(`triage-question-${currentQuestion}`).style.display = 'none';
+            document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
+        } else {
+            form.reportValidity();
+        }
+    }
+
+    function submitTriage() {
+        const form1 = new FormData(document.getElementById('question-form-1'));
+        const form2 = new FormData(document.getElementById('question-form-2'));
+        const form3 = new FormData(document.getElementById('question-form-3'));
+
+        const severity = form1.get('severity');
+        const symptoms = form2.getAll('symptoms'); // Get all selected checkboxes
+        const duration = form3.get('duration');
+
+        // Calculate the sum of the selected checkbox values
+        const symptomsSum = symptoms.reduce((sum, value) => sum + parseInt(value), 0);
+
+        const data = {
+            severity: severity,
+            symptoms: symptoms,
+            symptomsSum: symptomsSum, // Include the sum in the data
+            duration: duration,
+            additional_notes: ''
+        };
+
+        const priorityScore = severity * 0.5 + symptomsSum * 0.3 + duration * 0.2;
+        console.log(priorityScore);
+
+        console.log(severity);
+        console.log(symptoms);
+        console.log(symptomsSum); // Log the sum of the selected checkbox values
+        console.log(duration);
+
+        // fetch('/triage/', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'X-CSRFToken': '{{ csrf_token }}'
+        //     },
+        //     body: JSON.stringify(data)
+        // })
+        // .then(response => response.json())
+        // .then(data => {
+        //     alert('Triage submitted successfully!');
+        //     window.location.href = '/home';
+        // })
+        // .catch(error => {
+        //     console.error('Error:', error);
+        // });
+    }
+</script>
+{% endblock %}

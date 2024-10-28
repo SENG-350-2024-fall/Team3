@@ -78,15 +78,17 @@ class Schedule(models.Model):
 class Assessment(models.Model):
     assessment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     severity_level = models.ForeignKey(SeverityLevel, on_delete=models.CASCADE)
+    symptoms = models.TextField()
+    duration = models.TextField()
     recommended_action = models.TextField()
     assessment_date = models.DateTimeField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     staff = models.ForeignKey(MedicalStaff, on_delete=models.CASCADE)
 
 # Patient Data model
 class PatientData(models.Model):
     patient_data_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    patient_id = models.ForeignKey(Patient, on_delete=models.CASCADE)
     medical_history = models.TextField()
     current_symptoms = models.TextField()
     assessment = models.ForeignKey(Assessment, on_delete=models.CASCADE)
@@ -94,7 +96,7 @@ class PatientData(models.Model):
 # Appointment model
 class Appointment(models.Model):
     appointment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    patient_id = models.ForeignKey(Patient, on_delete=models.CASCADE)
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE)
     date_time = models.DateTimeField()
 

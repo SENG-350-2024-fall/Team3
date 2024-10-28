@@ -15,8 +15,9 @@ from .forms import SignupForm
 def home(request):
     return render(request, 'home/home.html')
 
+@login_required(login_url="/login") 
 def triage(request):
-    return HttpResponse("TEMP TRIAGE PAGE")
+    return render(request, 'triage/triage.html')
 
 def login(request):
     return render(request, 'registration/login.html')
