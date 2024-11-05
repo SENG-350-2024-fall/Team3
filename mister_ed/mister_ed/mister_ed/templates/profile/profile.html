@@ -1,0 +1,188 @@
+<!-- templates/profile/profile.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .triage-container {
+            text-align: center;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 40px auto;
+        }
+        .triage-container h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            color: #333;
+        }
+        .triage-container button {
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+        .triage-container button:hover {
+            background-color: #0056b3;
+        }
+        .triage-container .question {
+            margin-top: 20px;
+            display: none;
+        }
+        .triage-container .question p {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+        .triage-container .question label {
+            display: block;
+            margin: 10px 0;
+            font-size: 1em;
+            color: #555;
+        }
+        .triage-container .question button {
+            margin-top: 20px;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .navbar-nav .nav-link {
+            margin-right: 10px;
+        }
+        .navbar-text {
+            margin-right: 10px;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light p-2">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/home">Mister ED</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/home">Home</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile">| {{ user.username }} |</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Profile</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data" class="bold">
+                            {% csrf_token %}
+                            <div class="text-center mb-4">
+                                {% if user.profile.photo %}
+                                    <img id="profile-photo-preview" src="{{ user.profile.photo.url }}" class="rounded-circle" alt="" width="150" height="150">
+                                {% else %}
+                                    <img id="profile-photo-preview" src="/media/profile_photos/default.jpg" class="rounded-circle" alt="" width="150" height="150">
+                                {% endif %}
+                               
+                            </div>
+                            <div class="form-group grid w-full max-w-xs items-center gap-1.5">
+                                <label class="text-sm text-gray-400 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="id_photo">Photo</label>
+                                <input type="file" name="photo" id="id_photo" class="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm text-gray-400 file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium" onchange="previewPhoto(event)">
+                            </div>
+                            <div class="form-group">
+                                <label for="first_name">First Name</label>
+                                {{ form.first_name }}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="last_name">Last Name</label>
+                                {{ form.last_name }}
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                {{ form.email }}
+                            </div>
+                            <button type="submit" class="btn btn-primary" onclick="saveChanges(event)">Save changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function previewPhoto(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const output = document.getElementById('profile-photo-preview');
+                output.src = reader.result;
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        document.querySelector('.custom-file-label').addEventListener('click', function() {
+            document.getElementById('id_photo').click();
+        });
+
+        document.getElementById('id_photo').addEventListener('change', function() {
+            const fileName = this.files[0].name;
+            document.querySelector('.custom-file-label').textContent = fileName;
+        });
+        function saveChanges(event) {
+            event.preventDefault();
+            var form = document.getElementById('myForm');
+            var formData = new FormData(form);
+            $.ajax({
+                type: 'POST',
+                url: '/save',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    console.log(data);
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseText);
+                }
+            });
+        };
+    </script>
+</body>
+</html>

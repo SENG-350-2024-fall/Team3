@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Patient
-
+from .models import Profile
 
 class SignupForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True)
@@ -33,3 +33,35 @@ class SignupForm(UserCreationForm):
                 address=self.cleaned_data["address"]
             )
         return user
+
+class ProfileForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=30)
+    last_name = forms.CharField(max_length=30)
+    email = forms.EmailField()
+
+    class Meta:
+        model = Profile
+        fields = ['photo']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('instance').user
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['first_name'].initial = user.first_name
+            self.fields['last_name'].initial = user.last_name
+            self.fields['email'].initial = user.email
+        self.user = user
+
+
+    def save(self, commit=True):
+        profile = super(ProfileForm, self).save(commit=False)
+        if self.user:
+            profile.user = self.user
+        user = profile.user
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        user.email = self.cleaned_data['email']
+        if commit:
+            user.save()
+            profile.save()
+        return profile
