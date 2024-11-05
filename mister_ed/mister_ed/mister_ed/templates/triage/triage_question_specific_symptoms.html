@@ -8,89 +8,193 @@
                             <div class="mb-3" id="pain-questions" style="display:none;">
                                 <h6 class="card-title text-center">Please select the attributes that best describe your pain</h6>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="pain" id="symptom-pain1">
-                                    <label class="form-check-label" for="symptom-pain1">Pain1</label>
+                                    <input class="form-check-input" type="checkbox" name="pain_attributes" value="dull" id="pain-dull">
+                                    <label class="form-check-label" for="pain-dull">Dull and generalized pain</label>
                                 </div>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="fever" id="symptom-pain2">
-                                    <label class="form-check-label" for="symptom-pain2">Pain2</label>
+                                    <input class="form-check-input" type="checkbox" name="pain_attributes" value="sharp" id="pain-sharp">
+                                    <label class="form-check-label" for="pain-sharp">Acute and sharp pain</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="pain_attributes" value="throbbing" id="pain-throbbing">
+                                    <label class="form-check-label" for="pain-throbbing">Throbbing pain</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="pain_attributes" value="constant" id="pain-constant">
+                                    <label class="form-check-label" for="pain-constant">Constant pain</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="pain_attributes" value="intermittent" id="pain-intermittent">
+                                    <label class="form-check-label" for="pain-intermittent">Intermittent pain</label>
                                 </div>
                             </div>
                             <div class="mb-3" id="fever-questions" style="display:none;">
                                 <h6 class="card-title text-center">Please select the attributes that best describe your fever</h6>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="pain" id="symptom-fever1">
-                                    <label class="form-check-label" for="symptom-fever1">Fever1</label>
+                                    <input class="form-check-input" type="checkbox" name="fever_attributes" value="low_grade" id="fever-low-grade">
+                                    <label class="form-check-label" for="fever-low-grade">Low-grade fever (99°F - 100.4°F)</label>
                                 </div>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="fever" id="symptom-fever2">
-                                    <label class="form-check-label" for="symptom-fever2">Fever1</label>
+                                    <input class="form-check-input" type="checkbox" name="fever_attributes" value="high" id="fever-high">
+                                    <label class="form-check-label" for="fever-high">High fever (above 100.4°F)</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="fever_attributes" value="chills" id="fever-chills">
+                                    <label class="form-check-label" for="fever-chills">Accompanied by chills</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="fever_attributes" value="sweating" id="fever-sweating">
+                                    <label class="form-check-label" for="fever-sweating">Accompanied by sweating</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="fever_attributes" value="persistent" id="fever-persistent">
+                                    <label class="form-check-label" for="fever-persistent">Persistent fever</label>
                                 </div>
                             </div>
                             <div class="mb-3" id="cough-questions" style="display:none;">
                                 <h6 class="card-title text-center">Please select the attributes that best describe your cough</h6>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="pain" id="symptom-cough1">
-                                    <label class="form-check-label" for="symptom-cough1">Cough1</label>
+                                    <input class="form-check-input" type="checkbox" name="cough_attributes" value="dry" id="cough-dry">
+                                    <label class="form-check-label" for="cough-dry">Dry cough</label>
                                 </div>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="fever" id="symptom-cough2">
-                                    <label class="form-check-label" for="symptom-cough2">Cough2</label>
+                                    <input class="form-check-input" type="checkbox" name="cough_attributes" value="productive" id="cough-productive">
+                                    <label class="form-check-label" for="cough-productive">Productive cough (with phlegm)</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="cough_attributes" value="persistent" id="cough-persistent">
+                                    <label class="form-check-label" for="cough-persistent">Persistent cough</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="cough_attributes" value="wheezing" id="cough-wheezing">
+                                    <label class="form-check-label" for="cough-wheezing">Accompanied by wheezing</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="cough_attributes" value="blood" id="cough-blood">
+                                    <label class="form-check-label" for="cough-blood">Coughing up blood</label>
                                 </div>
                             </div>
                             <div class="mb-3" id="shortness-of-breath-questions" style="display:none;">
                                 <h6 class="card-title text-center">Please select the attributes that best describe your shortness of breath</h6>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="pain" id="symptom-shortness-of-breath1">
-                                    <label class="form-check-label" for="symptom-shortness-of-breath1">shortness of breath 1</label>
+                                    <input class="form-check-input" type="checkbox" name="sob_attributes" value="sudden" id="sob-sudden">
+                                    <label class="form-check-label" for="sob-sudden">Sudden onset</label>
                                 </div>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="fever" id="symptom-shortness-of-breath2">
-                                    <label class="form-check-label" for="symptom-shortness-of-breath2">shortness of breath 2</label>
+                                    <input class="form-check-input" type="checkbox" name="sob_attributes" value="gradual" id="sob-gradual">
+                                    <label class="form-check-label" for="sob-gradual">Gradual onset</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="sob_attributes" value="worsening" id="sob-worsening">
+                                    <label class="form-check-label" for="sob-worsening">Worsening over time</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="sob_attributes" value="exertion" id="sob-exertion">
+                                    <label class="form-check-label" for="sob-exertion">Occurs with exertion</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="sob_attributes" value="rest" id="sob-rest">
+                                    <label class="form-check-label" for="sob-rest">Occurs at rest</label>
                                 </div>
                             </div>
-                            <div class="mb-3" id="dizziness-questions" style="display:none;">
-                                <h6 class="card-title text-center">Please select the attributes that best describe your dizziness</h6>
+                            <div class="mb-3" id="nausea-vomiting-questions" style="display:none;">
+                                <h6 class="card-title text-center">Please select the attributes that best describe your nausea and vomiting</h6>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="pain" id="symptom-dizziness1">
-                                    <label class="form-check-label" for="symptom-dizziness1">dizziness1</label>
+                                    <input class="form-check-input" type="checkbox" name="nv_attributes" value="nausea" id="nv-nausea">
+                                    <label class="form-check-label" for="nv-nausea">Nausea</label>
                                 </div>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="fever" id="symptom-dizziness2">
-                                    <label class="form-check-label" for="symptom-dizziness2">dizziness2</label>
+                                    <input class="form-check-input" type="checkbox" name="nv_attributes" value="vomiting" id="nv-vomiting">
+                                    <label class="form-check-label" for="nv-vomiting">Vomiting</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="nv_attributes" value="persistent" id="nv-persistent">
+                                    <label class="form-check-label" for="nv-persistent">Persistent</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="nv_attributes" value="intermittent" id="nv-intermittent">
+                                    <label class="form-check-label" for="nv-intermittent">Intermittent</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="nv_attributes" value="blood" id="nv-blood">
+                                    <label class="form-check-label" for="nv-blood">Vomiting blood</label>
                                 </div>
                             </div>
                             <div class="mb-3" id="headache-questions" style="display:none;">
                                 <h6 class="card-title text-center">Please select the attributes that best describe your headache</h6>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="pain" id="symptom-headache1">
-                                    <label class="form-check-label" for="symptom-headache1">headache1</label>
+                                    <input class="form-check-input" type="checkbox" name="headache_attributes" value="mild" id="headache-mild">
+                                    <label class="form-check-label" for="headache-mild">Mild headache</label>
                                 </div>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="fever" id="symptom-headache2">
-                                    <label class="form-check-label" for="symptom-headache2">headache2</label>
+                                    <input class="form-check-input" type="checkbox" name="headache_attributes" value="moderate" id="headache-moderate">
+                                    <label class="form-check-label" for="headache-moderate">Moderate headache</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="headache_attributes" value="severe" id="headache-severe">
+                                    <label class="form-check-label" for="headache-severe">Severe headache</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="headache_attributes" value="throbbing" id="headache-throbbing">
+                                    <label class="form-check-label" for="headache-throbbing">Throbbing headache</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="headache_attributes" value="pressure" id="headache-pressure">
+                                    <label class="form-check-label" for="headache-pressure">Pressure-like headache</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="headache_attributes" value="migraine" id="headache-migraine">
+                                    <label class="form-check-label" for="headache-migraine">Migraine</label>
                                 </div>
                             </div>
                             <div class="mb-3" id="nausea-vomiting-questions" style="display:none;">
-                                <h6 class="card-title text-center">Please select the attributes that best describe your nausea / vomiting</h6>
+                                <h6 class="card-title text-center">Please select the attributes that best describe your nausea and vomiting</h6>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="pain" id="symptom-nausea-vomiting1">
-                                    <label class="form-check-label" for="symptom-nausea-vomiting1">nausea-vomiting1</label>
+                                    <input class="form-check-input" type="checkbox" name="nv_attributes" value="nausea" id="nv-nausea">
+                                    <label class="form-check-label" for="nv-nausea">Nausea</label>
                                 </div>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="fever" id="symptom-nausea-vomiting2">
-                                    <label class="form-check-label" for="symptom-nausea-vomiting2">nausea-vomiting2</label>
+                                    <input class="form-check-input" type="checkbox" name="nv_attributes" value="vomiting" id="nv-vomiting">
+                                    <label class="form-check-label" for="nv-vomiting">Vomiting</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="nv_attributes" value="persistent" id="nv-persistent">
+                                    <label class="form-check-label" for="nv-persistent">Persistent</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="nv_attributes" value="intermittent" id="nv-intermittent">
+                                    <label class="form-check-label" for="nv-intermittent">Intermittent</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="nv_attributes" value="blood" id="nv-blood">
+                                    <label class="form-check-label" for="nv-blood">Vomiting blood</label>
                                 </div>
                             </div>
                             <div class="mb-3" id="swelling-questions" style="display:none;">
                                 <h6 class="card-title text-center">Please select the attributes that best describe your swelling</h6>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="pain" id="symptom-swelling1">
-                                    <label class="form-check-label" for="symptom-swelling1">swelling1</label>
+                                    <input class="form-check-input" type="checkbox" name="swelling_attributes" value="localized" id="swelling-localized">
+                                    <label class="form-check-label" for="swelling-localized">Localized swelling</label>
                                 </div>
                                 <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" name="symptoms" value="fever" id="symptom-swelling2">
-                                    <label class="form-check-label" for="symptom-swelling2">swelling2</label>
+                                    <input class="form-check-input" type="checkbox" name="swelling_attributes" value="generalized" id="swelling-generalized">
+                                    <label class="form-check-label" for="swelling-generalized">Generalized swelling</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="swelling_attributes" value="painful" id="swelling-painful">
+                                    <label class="form-check-label" for="swelling-painful">Painful swelling</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="swelling_attributes" value="non_painful" id="swelling-non-painful">
+                                    <label class="form-check-label" for="swelling-non-painful">Non-painful swelling</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="swelling_attributes" value="red" id="swelling-red">
+                                    <label class="form-check-label" for="swelling-red">Red and inflamed</label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="swelling_attributes" value="warm" id="swelling-warm">
+                                    <label class="form-check-label" for="swelling-warm">Warm to the touch</label>
                                 </div>
                             </div>
                         </form>
