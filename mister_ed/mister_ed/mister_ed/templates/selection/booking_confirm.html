@@ -1,0 +1,27 @@
+<!-- booking_confirm.html -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Booking</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Confirm Booking</h2>
+        <p>Are you sure you want to book the following appointment?</p>
+        <ul>
+            <li><strong>Clinic:</strong> {{ schedule.clinic.name }}</li>
+            <li><strong>Doctor:</strong> {{ schedule.doctor.name }}</li>
+            <li><strong>Service:</strong> {{ schedule.service.service_name }}</li>
+            <li><strong>Date:</strong> {{ schedule.available_date }}</li>
+            <li><strong>Time:</strong> {{ schedule.available_time }}</li>
+        </ul>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Confirm Booking</button>
+            <a href="{% url 'appointment_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

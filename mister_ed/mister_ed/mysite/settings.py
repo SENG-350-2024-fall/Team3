@@ -76,13 +76,13 @@ WSGI_APPLICATION = "mysite.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
+# 134.87.132.85
 DATABASES = {
     "default": {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mister_ed',
         'USER': 'postgres',
-        'PASSWORD': 'group3',
+        'PASSWORD': '0707',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -117,7 +117,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -127,8 +126,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_REDIRECT_URL = '/home'
 LOGOUT_REDIRECT_URL = '/login'
 
+STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
-    Path(BASE_DIR, 'home', 'static')
+    BASE_DIR / 'static'
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 import uuid
 from django.core.validators import RegexValidator
+from datetime import datetime
+from django.utils import timezone
 
 # Patient model
 class Patient(models.Model):
@@ -15,6 +17,9 @@ class Patient(models.Model):
         validators=[RegexValidator(regex=r'^\d{10}$', message='Phone number must be exactly 10 digits.')]
     )
     address = models.CharField(max_length=100, null=False, blank=False, default='')
+    # Added latitude and longitude fields
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -24,8 +29,28 @@ class Clinic(models.Model):
     clinic_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, null=False, blank=False)
     address = models.CharField(max_length=255, null=False, blank=False)
-    phone_number = models.CharField(max_length=255, null=False, blank=False)
+    lat = models.FloatField(null=False, blank=False)
+    lng = models.FloatField(null=False, blank=False)
 
+    def __str__(self):
+        return self.name
+    
+class Doctor(models.Model):
+    doctor_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, null=False, blank=False)
+    specialty = models.CharField(max_length=255, null=False, blank=False)
+
+    def __str__(self):
+        return self.name
+    
+class Service(models.Model):
+    service_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    service_name = models.CharField(max_length=255, null=False, blank=False)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.service_name} by {self.doctor.name}'
+    
 # ED (Emergency Department) model
 class ED(models.Model):
     ed_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -70,9 +95,15 @@ class MedicalStaff(models.Model):
 # Schedule model
 class Schedule(models.Model):
     schedule_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    staff = models.ForeignKey(MedicalStaff, on_delete=models.CASCADE)
-    date = models.DateField()
-    shift = models.CharField(max_length=255)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE)
+    available_date = models.DateField()
+    available_time = models.TimeField()
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    is_booked = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.service.service_name} on {self.available_date} at {self.available_time}'
 
 # Assessment model
 class Assessment(models.Model):
@@ -95,8 +126,11 @@ class PatientData(models.Model):
 class Appointment(models.Model):
     appointment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE)
-    date_time = models.DateTimeField()
+    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
+    booking_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Appointment for {self.user.username} with {self.schedule.service.service_name} on {self.schedule.available_date} at {self.schedule.available_time}'
 
 # Notification model
 class Notification(models.Model):
