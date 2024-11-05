@@ -10,6 +10,9 @@ from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import SignupForm
+from .forms import ProfileForm
+from .models import Profile
+
 
 @login_required(login_url="/login") 
 def home(request):
@@ -32,3 +35,19 @@ def signup(request):
     else:
         form = SignupForm()
     return render(request, 'registration/signup.html', {'form': form})
+
+@login_required(login_url="/login") 
+def profile(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if created:
+        profile.user = request.user
+        profile.save()
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = ProfileForm(instance=profile, initial={'photo': profile.photo})
+    return render(request, 'profile/profile.html', {'form': form})
+

@@ -11,11 +11,13 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -40,7 +42,7 @@ INSTALLED_APPS = [
     "mister_ed.apps.MisterEdConfig",
     "crispy_forms",
     "crispy_bootstrap5",
-    "rest_framework"
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -82,7 +84,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mister_ed',
         'USER': 'postgres',
-        'PASSWORD': 'group3',
+        'PASSWORD': '980309',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -130,6 +132,8 @@ LOGOUT_REDIRECT_URL = '/login'
 STATICFILES_DIRS = [
     Path(BASE_DIR, 'home', 'static')
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
