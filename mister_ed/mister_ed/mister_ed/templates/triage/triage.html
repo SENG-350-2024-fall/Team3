@@ -24,30 +24,69 @@
         document.getElementById('triage-question-1').style.display = 'block';
     }
 
+    class Strategy {
+        execute(currentQuestion) {
+            throw new Error("This method should be overridden!");
+        }
+    }
+
+    class StrategyQuestion1 extends Strategy {
+        execute(currentQuestion) {
+            const form1 = new FormData(document.getElementById('question-form-1'));
+            if (form1.getAll('severe-symptoms').length > 0) {
+                alert('Alerting to notify you to go to the nearest emergency room. Replace this alert with a proper page redirect.');
+            } else {
+                document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
+            }
+        }
+    }
+
+    class StrategyQuestion2 extends Strategy {
+        execute(currentQuestion) {
+            document.getElementById('triage-question-specific-symptoms').style.display = 'block';
+            const form2 = new FormData(document.getElementById('question-form-2'));
+            form2.forEach((value, key) => {
+                document.getElementById(`${value}-questions`).style.display = 'block';
+            });
+        }
+    }
+
+    class DefaultStrategy extends Strategy {
+        execute(currentQuestion) {
+            document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
+        }
+    }
+
+    class Context {
+        constructor(strategy) {
+            this._strategy = strategy;
+        }
+
+        setStrategy(strategy) {
+            this._strategy = strategy;
+        }
+
+        executeStrategy(currentQuestion) {
+            this._strategy.execute(currentQuestion);
+        }
+    }
+
     function nextQuestion(currentQuestion) {
         const form = document.getElementById(`question-form-${currentQuestion}`);
         if (form.checkValidity()) {
             document.getElementById(`triage-question-${currentQuestion}`).style.display = 'none';
+            let context;
             switch (currentQuestion) {
                 case 1:
-                    const form1 = new FormData(document.getElementById('question-form-1'));
-                    if (form1.getAll('severe-symptoms').length > 0) {
-                        alert('Alerting to notify you to go to the nearest emergency room. Replace this alert with a proper page redirect.');
-                    } else {
-                        document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
-                    }
+                    context = new Context(new StrategyQuestion1());
                     break;
                 case 2:
-                    document.getElementById('triage-question-specific-symptoms').style.display = 'block';
-                    const form2 = new FormData(document.getElementById('question-form-2'));
-                    form2.forEach((value, key) => {
-                        document.getElementById(`${value}-questions`).style.display = 'block';
-                    });
+                    context = new Context(new StrategyQuestion2());
                     break;
                 default:
-                    document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
+                    context = new Context(new DefaultStrategy());
             }
-            
+            context.executeStrategy(currentQuestion);
         } else {
             form.reportValidity();
         }
