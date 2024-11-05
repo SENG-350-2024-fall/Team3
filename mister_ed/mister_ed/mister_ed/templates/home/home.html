@@ -207,74 +207,53 @@
             }
         }
 
+        
         function submitTriage() {
-            document.getElementById('triage-question-4').style.display = 'none';
-            document.getElementById('assessment').style.display = 'block';
-            document.getElementById('submission').innerHTML = 'Your virtual triage has been submitted successfully!'
-
+            // Gather form data
             const form1 = new FormData(document.getElementById('question-form-1'));
-            const form2 = document.getElementById('question-form-2') == null ? null : new FormData(document.getElementById('question-form-2'));
+            const form2 = new FormData(document.getElementById('question-form-2'));
             const form3 = new FormData(document.getElementById('question-form-3'));
-            const form4 = document.getElementById('question-form-4') == null ? null : new FormData(document.getElementById('question-form-4'));
+            const form4 = new FormData(document.getElementById('question-form-4'));
 
             const severity = form1.get('severity');
             const symptoms = form2.getAll('symptoms');
             const symptomsSum = symptoms.reduce((a, b) => parseInt(a) + parseInt(b), 0);
             const duration = form3.get('duration');
-            const additional = form4 == null ? null : form4.get('additionalSymptoms');
+            const additional = form4.get('additionalSymptoms');
 
-            const data = {
-                severity: severity,
-                symptoms: symptomsSum,
-                duration: duration,
-                additional: additional
+            // Create a form to submit via POST
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/triage/';
+
+            // CSRF token
+            const csrfToken = '{{ csrf_token }}';
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+
+            // Append data
+            const fields = {
+                'severity': severity,
+                'symptoms': symptomsSum,
+                'duration': duration,
+                'additional': additional
             };
 
-            console.log(severity);
-            console.log(symptomsSum);
-            console.log(duration);
-            console.log(additional);
-
-            const priorityScore = severity * 0.5 + symptomsSum * 0.3 + duration * 0.2;
-            console.log(priorityScore);
-
-            let assessmentText = '';
-            if (priorityScore < 2) {
-                assessmentText = 
-                    'at this time, you do not require medical attention at the emergency department. Please monitor your symptoms and seek medical attention if they worsen.';
-            } else if (priorityScore < 5) {
-                assessmentText = 'you may require medical assistance with a healthcare provider. Please monitor your symptoms and seek medical attention if they worsen.';
-            } else {
-                assessmentText = 'you require immediate medical attention. Please proceed to the nearest emergency department.';
+            for (const field in fields) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = field;
+                input.value = fields[field];
+                form.appendChild(input);
             }
 
-            document.getElementById('assessment-text').innerHTML = 
-                `We've determined that ${assessmentText}`;
-
-            // const data = {
-            //     severity: severity,
-            //     duration: duration,
-            //     symptoms: symptoms,
-            //     additional_notes: ''
-            // };
-
-            // fetch('/triage/', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'X-CSRFToken': '{{ csrf_token }}'
-            //     },
-            //     body: JSON.stringify(data)
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     alert('Triage submitted successfully!');
-            //     window.location.href = '/home';
-            // })
-            // .catch(error => {
-            //     console.error('Error:', error);
-            // });
+            document.body.appendChild(form);
+            form.submit();
         }
+        </script>
     </script>
 </body>
 </html>

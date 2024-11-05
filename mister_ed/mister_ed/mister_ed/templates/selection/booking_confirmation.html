@@ -1,0 +1,23 @@
+<!-- booking_confirmation.html -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booking Confirmed</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Booking Confirmed</h2>
+        <p>Your appointment has been successfully booked.</p>
+        <ul>
+            <li><strong>Clinic:</strong> {{ appointment.schedule.clinic.name }}</li>
+            <li><strong>Doctor:</strong> {{ appointment.schedule.doctor.name }}</li>
+            <li><strong>Service:</strong> {{ appointment.schedule.service.service_name }}</li>
+            <li><strong>Date:</strong> {{ appointment.schedule.available_date }}</li>
+            <li><strong>Time:</strong> {{ appointment.schedule.available_time }}</li>
+        </ul>
+        <a href="{% url 'home' %}" class="btn btn-primary">Return to Home</a>
+    </div>
+</body>
+</html>
