@@ -1,0 +1,10 @@
+first make sure no existing migrations exist accept for __init__.py
+
+Run python manage.py makemigrations
+Run python manage.py migrate
+
+
+To populate the data:
+Run python manage.py shell
+Run exec(open("populate_data.py").read())
+Run exit to exit shell

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,14 +77,22 @@ WSGI_APPLICATION = "mysite.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
+# 134.87.132.85
 DATABASES = {
-    "default": {
+    'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mister_ed',
         'USER': 'postgres',
-        'PASSWORD': '132454',
+        'PASSWORD': '0707',
         'HOST': 'localhost',
+        'PORT': '5432',
+    },
+    'replica': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'mister_ed',
+        'USER': 'postgres',
+        'PASSWORD': '0707',
+        'HOST': 'replica-db-host',
         'PORT': '5432',
     }
 }
@@ -101,6 +110,25 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'error.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -117,7 +145,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -127,9 +154,20 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_REDIRECT_URL = '/home'
 LOGOUT_REDIRECT_URL = '/login'
 
+STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
-    Path(BASE_DIR, 'home', 'static')
+    BASE_DIR / 'static'
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+

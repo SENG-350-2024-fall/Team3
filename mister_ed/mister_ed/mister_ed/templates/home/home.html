@@ -30,6 +30,7 @@
             </div>
         </div>
     </div>
+    <!-- Added from db_logic branch -->
     <div class="col-md-4">
         <div class="card">
             <div class="card-body">
@@ -40,4 +41,76 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Scripts from Clinic_Appointments branch -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function startTriage() {
+        document.getElementById('start-triage').style.display = 'none';
+        document.getElementById('triage-question-1').style.display = 'block';
+    }
+
+    function nextQuestion(currentQuestion) {
+        const form = document.getElementById(`question-form-${currentQuestion}`);
+        if (form.checkValidity()) {
+            document.getElementById(`triage-question-${currentQuestion}`).style.display = 'none';
+            document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
+        } else {
+            form.reportValidity();
+        }
+    }
+
+    function submitTriage() {
+        // Gather form data
+        const form1 = new FormData(document.getElementById('question-form-1'));
+        const form2 = new FormData(document.getElementById('question-form-2'));
+        const form3 = new FormData(document.getElementById('question-form-3'));
+
+        // Adjusted field names to match your HTML
+        const severeSymptoms = form1.getAll('severe-symptoms'); // Get all severe symptoms
+        const severity = severeSymptoms.length > 0 ? 5 : 0; // Assign severity score based on severe symptoms
+
+        const symptomsList = form2.getAll('symptoms');
+        const symptoms = symptomsList.length;
+
+        const duration = form3.get('duration') === 'Less than a day' ? 1 :
+                        form3.get('duration') === '1-3 days' ? 2 : 3;
+
+        // Create a form to submit via POST
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/triage/';
+
+        // CSRF token
+        const csrfToken = '{{ csrf_token }}';
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        // Append data
+        const fields = {
+            'severity': severity,
+            'symptoms': symptoms,
+            'duration': duration,
+        };
+
+        for (const field in fields) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = field;
+            input.value = fields[field];
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+</script>
 {% endblock %}

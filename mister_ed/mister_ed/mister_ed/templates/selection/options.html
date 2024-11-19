@@ -1,0 +1,19 @@
+{% extends "home/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>{{ recommended_action }}</h2>
+    <p>Please select one of the following options:</p>
+    <form method="post" action="{% url 'appointment_list' %}">
+        {% csrf_token %}
+        {% for option in options %}
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="selected_option" value="{{ option }}" id="{{ option }}" required>
+                <label class="form-check-label" for="{{ option }}">{{ option }}</label>
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary mt-3">Proceed</button>
+    </form>
+</div>
+{% endblock %}
+

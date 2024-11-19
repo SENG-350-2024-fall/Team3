@@ -6,6 +6,7 @@
                     <div class="card-body">
                         <h5 class="card-title text-center">Please select your main symptom(s)</h5>
                         <form id="question-form-2">
+                            <!-- Main Symptoms Checkboxes -->
                             <div class="form-check mt-2">
                                 <input class="form-check-input" type="checkbox" name="symptoms" value="pain" id="symptom-pain">
                                 <label class="form-check-label" for="symptom-pain">Pain</label>
@@ -19,7 +20,7 @@
                                 <label class="form-check-label" for="symptom-cough">Cough</label>
                             </div>
                             <div class="form-check mt-2">
-                                <input class="form-check-input" type="checkbox" name="symptoms" value="shortness-of-breath" id="symptom-shortness-of-breath">
+                                <input class="form-check-input" type="checkbox" name="symptoms" value="shortness_of_breath" id="symptom-shortness-of-breath">
                                 <label class="form-check-label" for="symptom-shortness-of-breath">Shortness of Breath</label>
                             </div>
                             <div class="form-check mt-2">
@@ -31,13 +32,14 @@
                                 <label class="form-check-label" for="symptom-headache">Headache</label>
                             </div>
                             <div class="form-check mt-2">
-                                <input class="form-check-input" type="checkbox" name="symptoms" value="nausea-vomiting" id="symptom-nausea-vomiting">
+                                <input class="form-check-input" type="checkbox" name="symptoms" value="nausea_vomiting" id="symptom-nausea-vomiting">
                                 <label class="form-check-label" for="symptom-nausea-vomiting">Nausea / Vomiting</label>
                             </div>
                             <div class="form-check my-2">
                                 <input class="form-check-input" type="checkbox" name="symptoms" value="swelling" id="symptom-swelling">
                                 <label class="form-check-label" for="symptom-swelling">Swelling</label>
                             </div>
+                            <!-- Add other symptoms as needed -->
                         </form>
                         <div class="text-center mt-3">
                             <button class="btn btn-primary w-100" onclick="nextQuestion(2)">Next</button>
@@ -48,3 +50,4 @@
         </div>
     </div>
 </div>
+

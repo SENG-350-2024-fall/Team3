@@ -12,8 +12,8 @@
 
     {% include "triage/triage_question_1.html" %}
     {% include "triage/triage_question_2.html" %}
-    {% include "triage/triage_question_3.html" %}
     {% include "triage/triage_question_specific_symptoms.html" %}
+    {% include "triage/triage_question_3.html" %}
 </div>
 {% endblock %}
 
@@ -24,69 +24,32 @@
         document.getElementById('triage-question-1').style.display = 'block';
     }
 
-    class Strategy {
-        execute(currentQuestion) {
-            throw new Error("This method should be overridden!");
-        }
-    }
-
-    class StrategyQuestion1 extends Strategy {
-        execute(currentQuestion) {
-            const form1 = new FormData(document.getElementById('question-form-1'));
-            if (form1.getAll('severe-symptoms').length > 0) {
-                alert('Alerting to notify you to go to the nearest emergency room. Replace this alert with a proper page redirect.');
-            } else {
-                document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
-            }
-        }
-    }
-
-    class StrategyQuestion2 extends Strategy {
-        execute(currentQuestion) {
-            document.getElementById('triage-question-specific-symptoms').style.display = 'block';
-            const form2 = new FormData(document.getElementById('question-form-2'));
-            form2.forEach((value, key) => {
-                document.getElementById(`${value}-questions`).style.display = 'block';
-            });
-        }
-    }
-
-    class DefaultStrategy extends Strategy {
-        execute(currentQuestion) {
-            document.getElementById(`triage-question-${currentQuestion + 1}`).style.display = 'block';
-        }
-    }
-
-    class Context {
-        constructor(strategy) {
-            this._strategy = strategy;
-        }
-
-        setStrategy(strategy) {
-            this._strategy = strategy;
-        }
-
-        executeStrategy(currentQuestion) {
-            this._strategy.execute(currentQuestion);
-        }
-    }
-
     function nextQuestion(currentQuestion) {
         const form = document.getElementById(`question-form-${currentQuestion}`);
         if (form.checkValidity()) {
             document.getElementById(`triage-question-${currentQuestion}`).style.display = 'none';
-            let context;
-            switch (currentQuestion) {
-                case 1:
-                    context = new Context(new StrategyQuestion1());
-                    break;
-                case 2:
-                    context = new Context(new StrategyQuestion2());
-                    break;
-                default:
-                    context = new Context(new DefaultStrategy());
+            console.log(`Proceeding from question ${currentQuestion}`);
+            if (currentQuestion === 1) {
+                // Proceed to question 2
+                document.getElementById('triage-question-2').style.display = 'block';
+            } else if (currentQuestion === 2) {
+                // Show specific symptom questions if any symptoms selected
+                const form2 = new FormData(document.getElementById('question-form-2'));
+                const selectedSymptoms = form2.getAll('symptoms');
+                if (selectedSymptoms.length > 0) {
+                    document.getElementById('triage-question-3').style.display = 'block';
+                    // Show specific symptom attributes
+                    selectedSymptoms.forEach((symptom) => {
+                        document.getElementById(`${symptom}-questions`).style.display = 'block';
+                    });
+                } else {
+                    // If no symptoms selected, skip to duration question
+                    document.getElementById('triage-question-4').style.display = 'block';
+                }
+            } else if (currentQuestion === 3) {
+                // Proceed to duration question
+                document.getElementById('triage-question-4').style.display = 'block';
             }
-            context.executeStrategy(currentQuestion);
         } else {
             form.reportValidity();
         }
@@ -95,47 +58,56 @@
     function submitTriage() {
         const form1 = new FormData(document.getElementById('question-form-1'));
         const form2 = new FormData(document.getElementById('question-form-2'));
-        const form3 = new FormData(document.getElementById('question-form-3'));
+        const form3 = new FormData(document.getElementById('question-form-3')); // Specific symptoms
+        const form4 = new FormData(document.getElementById('question-form-4')); // Duration
 
-        const severity = form1.get('severity');
-        const symptoms = form2.getAll('symptoms'); // Get all selected checkboxes
-        const duration = form3.get('duration');
+        const severeSymptoms = form1.getAll('severe-symptoms'); // Severe symptoms
+        const symptoms = form2.getAll('symptoms'); // Main symptoms
+        const duration = form4.get('duration');
 
-        // Calculate the sum of the selected checkbox values
-        const symptomsSum = symptoms.reduce((sum, value) => sum + parseInt(value), 0);
+        // Collect specific symptom attributes
+        const specificSymptoms = {};
+        form3.forEach((value, key) => {
+            if (!specificSymptoms[key]) {
+                specificSymptoms[key] = [];
+            }
+            specificSymptoms[key].push(value);
+        });
 
+        // Prepare data to send to backend
         const data = {
-            severity: severity,
+            severeSymptoms: severeSymptoms,
             symptoms: symptoms,
-            symptomsSum: symptomsSum, // Include the sum in the data
+            specificSymptoms: specificSymptoms,
             duration: duration,
-            additional_notes: ''
         };
 
-        const priorityScore = severity * 0.5 + symptomsSum * 0.3 + duration * 0.2;
-        console.log(priorityScore);
+        console.log('Submitting triage data:', data); // Debugging output
 
-        console.log(severity);
-        console.log(symptoms);
-        console.log(symptomsSum); // Log the sum of the selected checkbox values
-        console.log(duration);
+        // Create a form to submit via POST
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/triage/';
 
-        // fetch('/triage/', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'X-CSRFToken': '{{ csrf_token }}'
-        //     },
-        //     body: JSON.stringify(data)
-        // })
-        // .then(response => response.json())
-        // .then(data => {
-        //     alert('Triage submitted successfully!');
-        //     window.location.href = '/home';
-        // })
-        // .catch(error => {
-        //     console.error('Error:', error);
-        // });
+        // CSRF token
+        const csrfToken = '{{ csrf_token }}';
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        // Append data
+        for (const key in data) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = JSON.stringify(data[key]);
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
     }
 </script>
 {% endblock %}
