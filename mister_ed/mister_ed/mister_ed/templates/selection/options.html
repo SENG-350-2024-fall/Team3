@@ -2,18 +2,27 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2>{{ recommended_action }}</h2>
-    <p>Please select one of the following options:</p>
-    <form method="post" action="{% url 'appointment_list' %}">
-        {% csrf_token %}
-        {% for option in options %}
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="selected_option" value="{{ option }}" id="{{ option }}" required>
-                <label class="form-check-label" for="{{ option }}">{{ option }}</label>
+    <h2 class="text-center">{{ recommended_action }}</h2>
+    <p class="text-center">Please select one of the following options:</p>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" action="{% url 'appointment_list' %}">
+                        {% csrf_token %}
+                        {% for option in options %}
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ option }}" id="{{ option }}" required>
+                                <label class="form-check-label" for="{{ option }}">{{ option }}</label>
+                            </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <button type="submit" class="btn btn-primary w-100">Proceed</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-primary mt-3">Proceed</button>
-    </form>
+        </div>
+    </div>
 </div>
 {% endblock %}
-
