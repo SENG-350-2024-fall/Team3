@@ -12,8 +12,8 @@
 
     {% include "triage/triage_question_1.html" %}
     {% include "triage/triage_question_2.html" %}
-    {% include "triage/triage_question_specific_symptoms.html" %}
     {% include "triage/triage_question_3.html" %}
+    {% include "triage/triage_question_4.html" %}
 </div>
 {% endblock %}
 
@@ -55,7 +55,23 @@
         }
     }
 
+    function showAlert(message, type) {
+        const alertContainer = document.getElementById('alert-container');
+        alertContainer.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+    }
+
     function submitTriage() {
+        if (!document.getElementById('question-form-4').checkValidity()) {
+            document.getElementById('question-form-4').reportValidity();
+            showAlert('Please select an option for the duration question.', 'danger');
+            return;
+        }
+
         const form1 = new FormData(document.getElementById('question-form-1'));
         const form2 = new FormData(document.getElementById('question-form-2'));
         const form3 = new FormData(document.getElementById('question-form-3')); // Specific symptoms
