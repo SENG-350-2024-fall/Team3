@@ -261,3 +261,7 @@ def resource_of_the_day(request):
         'title': 'Resource of the Day',
         'content': 'If you can’t find the motivation to exercise, just wear workout clothes all day. It’s like working out without breaking a sweat!',
     })
+
+
+def records(request):
+    return render(request, 'records/records.html')
