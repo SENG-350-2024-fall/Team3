@@ -7,65 +7,24 @@
     <h2 class="text-center">My Medical Records</h2>
     <p class="text-center">Here you can view your medical history, problems, complications, allergies, and more.</p>
 
-    <div class="row mt-4">
-        <!-- Medical History Section -->
+    <div class="row justify-content-center mt-4">
+        {% for record in medical_records %}
         <div class="col-md-6">
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">Medical History</h5>
-                    <p class="card-text">Details about your past medical conditions and treatments.</p>
-                    <!-- Add more detailed content here -->
+                    <h5 class="card-title text-center">Medical Record</h5>
+                    <p><strong>Medical History:</strong> {{ record.medical_history }}</p>
+                    <p><strong>Problems:</strong> {{ record.problems }}</p>
+                    <p><strong>Complications:</strong> {{ record.complications }}</p>
+                    <p><strong>Allergies:</strong> {{ record.allergies }}</p>
+                    <p><strong>Additional Information:</strong> {{ record.additional_info }}</p>
+                    <div class="text-center">
+                        <a href="{% url 'update_records' %}" class="btn btn-primary">Update</a>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Problems Section -->
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Problems</h5>
-                    <p class="card-text">Information about ongoing medical problems and diagnoses.</p>
-                    <!-- Add more detailed content here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <!-- Complications Section -->
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Complications</h5>
-                    <p class="card-text">Details about any complications related to your medical conditions.</p>
-                    <!-- Add more detailed content here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Allergies Section -->
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Allergies</h5>
-                    <p class="card-text">Information about your allergies and reactions.</p>
-                    <!-- Add more detailed content here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <!-- Additional Information Section -->
-        <div class="col-md-12">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Additional Information</h5>
-                    <p class="card-text">Any other relevant medical information.</p>
-                    <!-- Add more detailed content here -->
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

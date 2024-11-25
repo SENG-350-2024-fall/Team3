@@ -24,6 +24,21 @@ class Patient(models.Model):
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
+# MedicalRecord model
+class MedicalRecord(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='medical_records')
+    record_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    medical_history = models.TextField(null=True, blank=True)
+    problems = models.TextField(null=True, blank=True)
+    complications = models.TextField(null=True, blank=True)
+    allergies = models.TextField(null=True, blank=True)
+    additional_info = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'Medical Record for {self.patient.first_name} {self.patient.last_name}'
+        
 # Clinic model
 class Clinic(models.Model):
     clinic_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

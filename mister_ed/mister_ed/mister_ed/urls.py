@@ -19,5 +19,6 @@ urlpatterns = [
     path('resources/resource-of-the-day/', views.resource_of_the_day, name='resource_of_the_day'),
     path("appointments/", views.appointment_list, name="appointment_list"),
     path("book_appointment/<uuid:schedule_id>/", views.book_appointment, name="book_appointment"),
-    path("records/", views.records, name="records")
+    path("records/", views.view_records, name="view_records"),
+    path('update_records', views.update_records, name='update_records'),
 ]
