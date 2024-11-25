@@ -1,0 +1,30 @@
+{% extends "home/base.html" %}
+
+{% block title %}My Records{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">My Medical Records</h2>
+    <p class="text-center">Here you can view your medical history, problems, complications, allergies, and more.</p>
+
+    <div class="row justify-content-center mt-4">
+        {% for record in medical_records %}
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Medical Record</h5>
+                    <p><strong>Medical History:</strong> {{ record.medical_history }}</p>
+                    <p><strong>Problems:</strong> {{ record.problems }}</p>
+                    <p><strong>Complications:</strong> {{ record.complications }}</p>
+                    <p><strong>Allergies:</strong> {{ record.allergies }}</p>
+                    <p><strong>Additional Information:</strong> {{ record.additional_info }}</p>
+                    <div class="text-center">
+                        <a href="{% url 'update_records' %}" class="btn btn-primary">Update</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

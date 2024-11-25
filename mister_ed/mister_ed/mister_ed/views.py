@@ -1,9 +1,9 @@
 # views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from .forms import SignupForm
-from .models import Schedule, Appointment, Patient
+from .forms import SignupForm, MedicalRecordForm
+from .models import Schedule, Appointment, Patient, MedicalRecord, Patient
 from django.urls import reverse
 from django.views.decorators.cache import cache_page
 from math import radians, cos, sin, sqrt, atan2
@@ -261,3 +261,27 @@ def resource_of_the_day(request):
         'title': 'Resource of the Day',
         'content': 'If you can’t find the motivation to exercise, just wear workout clothes all day. It’s like working out without breaking a sweat!',
     })
+
+@login_required
+def view_records(request):
+    patient = get_object_or_404(Patient, user=request.user)
+    medical_records = MedicalRecord.objects.filter(patient=patient)
+    return render(request, 'records/records.html', {'medical_records': medical_records})
+
+@login_required
+def update_records(request):
+    patient = get_object_or_404(Patient, user=request.user)
+    medical_record = MedicalRecord.objects.filter(patient=patient).first()
+    if not medical_record:
+        # Handle the case where no medical record exists for the patient
+        medical_record = MedicalRecord(patient=patient)
+        medical_record.save()
+
+    if request.method == 'POST':
+        form = MedicalRecordForm(request.POST, instance=medical_record)
+        if form.is_valid():
+            form.save()
+            return redirect('view_records')
+    else:
+        form = MedicalRecordForm(instance=medical_record)
+    return render(request, 'records/update_records.html', {'form': form})
