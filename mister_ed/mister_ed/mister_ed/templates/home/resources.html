@@ -1,0 +1,61 @@
+{% extends "home/base.html" %}
+
+{% block title %}Health Resources{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="display-4">Health Resources</h1>
+    <p class="lead">Discover resources to help you manage your health and wellness effectively.</p>
+    <hr class="my-4">
+
+    <!-- Search Bar -->
+    <div class="input-group mb-4">
+        <input type="text" class="form-control" placeholder="Search resources..." aria-label="Search resources">
+        <button class="btn btn-outline-primary" type="button">Search</button>
+    </div>
+
+    <!-- Featured Resource Section -->
+    <div class="card bg-light mb-4">
+        <div class="card-body">
+            <h2 class="card-title"><i class="fas fa-star text-warning"></i> Featured Resource of the Day</h2>
+            <p class="card-text">"Guide to Mental Wellness" - A comprehensive guide on maintaining mental health and finding support resources.</p>
+            <a href="/resources/resource-of-the-day" class="btn btn-primary">Read Featured Resource</a>
+        </div>
+    </div>
+
+    <!-- Filter Options -->
+    <div class="mb-4">
+        <span class="badge bg-primary filter-option" data-category="all">All</span>
+        <span class="badge bg-secondary filter-option" data-category="Lifestyle">Lifestyle</span>
+        <span class="badge bg-success filter-option" data-category="Mental Health">Mental Health</span>
+        <span class="badge bg-info filter-option" data-category="Nutrition">Nutrition</span>
+        <span class="badge bg-warning filter-option" data-category="Fitness">Fitness</span>
+    </div>
+
+    <!-- Resources Grid -->
+    <div class="row">
+        {% for resource in resources %}
+        <div class="col-md-4 resource-card mb-4" data-category="{{ resource.category }}">
+            <div class="card h-100 d-flex flex-column">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                        <i class="fas {{ resource.icon }} text-primary"></i> {{ resource.title }}
+                    </h5>
+                    <span class="badge 
+                        {% if resource.category == 'Mental Health' %} bg-success 
+                        {% elif resource.category == 'Fitness' %} bg-warning 
+                        {% elif resource.category == 'Nutrition' %} bg-info 
+                        {% elif resource.category == 'Lifestyle' %} bg-secondary 
+                        {% else %} bg-primary 
+                        {% endif %}">
+                        {{ resource.category }}
+                    </span>
+                    <p class="card-text flex-grow-1">{{ resource.description }}</p>
+                    <a href="{{ resource.link }}" class="btn btn-outline-primary mt-auto">Learn More</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

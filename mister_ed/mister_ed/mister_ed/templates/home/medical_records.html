@@ -1,0 +1,30 @@
+{% extends "home/base.html" %}
+
+{% block title %}Medical Records{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="display-4">Medical Records</h1>
+    <p class="lead">View your past diagnoses and treatments.</p>
+    <hr class="my-4">
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Diagnosis</th>
+                <th>Treatment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td>{{ record.date }}</td>
+                <td>{{ record.diagnosis }}</td>
+                <td>{{ record.treatment }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "home/base.html" %}
+
+{% block title %}Virtual Triage{% endblock %}
+
+{% block content %}
+<div class="triage-container my-5 mx-4">
+    <h1 class="display-4 text-center">Virtual Triage</h1>
+    <p class="lead text-center">Answer the following questions to help us assess your condition.</p>
+    <div class="d-flex justify-content-center align-items-center mt-4">
+        <button id="start-triage" class="btn btn-primary btn-lg w-25" onclick="startTriage()">Start</button>
+    </div>
+
+    {% include "triage/triage_question_1.html" %}
+    {% include "triage/triage_question_2.html" %}
+    {% include "triage/triage_question_3.html" %}
+    {% include "triage/triage_question_4.html" %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function startTriage() {
+        document.getElementById('start-triage').style.display = 'none';
+        document.getElementById('triage-question-1').style.display = 'block';
+    }
+
+    function nextQuestion(currentQuestion) {
+        const form = document.getElementById(`question-form-${currentQuestion}`);
+        if (form.checkValidity()) {
+            document.getElementById(`triage-question-${currentQuestion}`).style.display = 'none';
+            console.log(`Proceeding from question ${currentQuestion}`);
+            if (currentQuestion === 1) {
+                // Proceed to question 2
+                document.getElementById('triage-question-2').style.display = 'block';
+            } else if (currentQuestion === 2) {
+                // Show specific symptom questions if any symptoms selected
+                const form2 = new FormData(document.getElementById('question-form-2'));
+                const selectedSymptoms = form2.getAll('symptoms');
+                if (selectedSymptoms.length > 0) {
+                    document.getElementById('triage-question-3').style.display = 'block';
+                    // Show specific symptom attributes
+                    selectedSymptoms.forEach((symptom) => {
+                        document.getElementById(`${symptom}-questions`).style.display = 'block';
+                    });
+                } else {
+                    // If no symptoms selected, skip to duration question
+                    document.getElementById('triage-question-4').style.display = 'block';
+                }
+            } else if (currentQuestion === 3) {
+                // Proceed to duration question
+                document.getElementById('triage-question-4').style.display = 'block';
+            }
+        } else {
+            form.reportValidity();
+        }
+    }
+
+    function showAlert(message, type) {
+        const alertContainer = document.getElementById('alert-container');
+        alertContainer.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+    }
+
+    function submitTriage() {
+        if (!document.getElementById('question-form-4').checkValidity()) {
+            document.getElementById('question-form-4').reportValidity();
+            showAlert('Please select an option for the duration question.', 'danger');
+            return;
+        }
+
+        const form1 = new FormData(document.getElementById('question-form-1'));
+        const form2 = new FormData(document.getElementById('question-form-2'));
+        const form3 = new FormData(document.getElementById('question-form-3')); // Specific symptoms
+        const form4 = new FormData(document.getElementById('question-form-4')); // Duration
+
+        const severeSymptoms = form1.getAll('severe-symptoms'); // Severe symptoms
+        const symptoms = form2.getAll('symptoms'); // Main symptoms
+        const duration = form4.get('duration');
+
+        // Collect specific symptom attributes
+        const specificSymptoms = {};
+        symptoms.forEach((symptom) => {
+            const attributes = [];
+            const checkboxes = document.querySelectorAll(`input[name='${symptom}_attributes']:checked`);
+            checkboxes.forEach((checkbox) => {
+                attributes.push(checkbox.value);
+            });
+            if (attributes.length > 0) {
+                specificSymptoms[symptom] = attributes;
+            }
+        });
+
+        // Prepare data to send to backend
+        const data = {
+            severeSymptoms: severeSymptoms,
+            symptoms: symptoms,
+            specificSymptoms: specificSymptoms,
+            duration: duration,
+        };
+        console.log('Submitting triage data:', data); // Debugging output
+
+        // Create a form to submit via POST
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/triage/';
+
+        // CSRF token
+        const csrfToken = '{{ csrf_token }}';
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        // Append data
+        for (const key in data) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = JSON.stringify(data[key]);
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+{% endblock %}
