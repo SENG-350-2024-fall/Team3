@@ -1,27 +1,23 @@
-<!-- options.html -->
-{% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Triage Options</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>Your Triage Results</h2>
-        <p><strong>Recommended Action:</strong> {{ recommended_action }}</p>
-        <p>Please select one of the following options:</p>
-        <ul>
-            {% for option in options %}
-            <li>
-                <form method="post" action="{% url 'appointment_list' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="selected_option" value="{{ option }}">
-                    <button type="submit" class="btn-primary">{{ option }}</button>
-                </form>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-</body>
-</html>
+{% extends "home/base.html" %}
+
+{% block title %}Triage Recommendation{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Your Triage Results</h2>
+    <p><strong>Recommended Action:</strong> {{ recommended_action }}</p>
+    <p>Please select one of the following options:</p>
+    <ul class="list-group">
+        {% for option in options %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>{{ option }}</span>
+            <form method="post" action="{% url 'appointment_list' %}">
+                {% csrf_token %}
+                <input type="hidden" name="selected_option" value="{{ option }}">
+                <button type="submit" class="btn btn-primary">Select</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

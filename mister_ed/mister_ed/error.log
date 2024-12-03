@@ -1,0 +1,72 @@
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+Traceback (most recent call last):
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\Documents\uvic\SENG 350\Milestone 2\ED_matcher\Team3\mister_ed\mister_ed\mister_ed\views.py", line 153, in triage
+    'prompt': prompt
+              ^^^^^^
+NameError: name 'prompt' is not defined
+"POST /triage/ HTTP/1.1" 500 77361
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
