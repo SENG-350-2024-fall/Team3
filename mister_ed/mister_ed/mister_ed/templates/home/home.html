@@ -87,11 +87,14 @@
                     {% if user.is_authenticated %}
                     <span class="navbar-text">Logged in as {{ user.username }} | </span>
                     <li class="nav-item">
-                        <a class="nav-link" href="/logout">Logout</a>
+                        <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link btn btn-link" style="display: inline; padding: 0; margin: 0;">Logout</button>
+                        </form>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/login">Login</a>
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
                     </li>
                     {% endif %}
                 </ul>

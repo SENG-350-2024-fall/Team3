@@ -1,0 +1,31 @@
+<!-- templates/registration/logged_out.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logged Out</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light p-2">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/home">Mister ED</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/home">Home</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container text-center mt-5">
+        <h1>You have been logged out</h1>
+        <p><a href="{% url 'login' %}">Click here</a> to log in again.</p>
+    </div>
+</body>
+</html>
