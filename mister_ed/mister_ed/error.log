@@ -70,3 +70,38 @@ Internal Server Error: /triage/
 "POST /triage/ HTTP/1.1" 500 376
 Internal Server Error: /triage/
 "POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /triage/
+"POST /triage/ HTTP/1.1" 500 376
+Internal Server Error: /appointments/
+Traceback (most recent call last):
+  File "C:\Users\grego\Documents\uvic\SENG 350\Milestone 2\ED_matcher\Team3\mister_ed\mister_ed\mister_ed\views.py", line 217, in appointment_list
+    distance = haversine(client_lat, client_lng, clinic.lat, clinic.lng)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\Documents\uvic\SENG 350\Milestone 2\ED_matcher\Team3\mister_ed\mister_ed\mister_ed\views.py", line 208, in haversine
+    dlat = radians(lat2 - lat1)
+           ^^^^^^^
+NameError: name 'radians' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\utils\decorators.py", line 188, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\utils\decorators.py", line 186, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\Documents\uvic\SENG 350\Milestone 2\ED_matcher\Team3\mister_ed\mister_ed\mister_ed\views.py", line 231, in appointment_list
+    logger.error(f"Unknown error in appointment_list: {str(e)}")
+    ^^^^^^
+NameError: name 'logger' is not defined
+"GET /appointments/ HTTP/1.1" 500 99032

@@ -20,5 +20,4 @@ urlpatterns = [
     path('resources/eating-on-budget/', views.eating_on_budget, name='eating_on_budget'),
     path('resources/resource-of-the-day/', views.resource_of_the_day, name='resource_of_the_day'),
     path("medical_records/", views.medical_records, name="medical_records"),
-
 ]
