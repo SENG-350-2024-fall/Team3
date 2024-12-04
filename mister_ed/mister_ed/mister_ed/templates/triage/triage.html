@@ -14,6 +14,7 @@
     {% include "triage/triage_question_2.html" %}
     {% include "triage/triage_question_3.html" %}
     {% include "triage/triage_question_4.html" %}
+    {% include "triage/triage_question_5.html" %}
 </div>
 {% endblock %}
 
@@ -29,26 +30,28 @@
         if (form.checkValidity()) {
             document.getElementById(`triage-question-${currentQuestion}`).style.display = 'none';
             console.log(`Proceeding from question ${currentQuestion}`);
+
             if (currentQuestion === 1) {
-                // Proceed to question 2
                 document.getElementById('triage-question-2').style.display = 'block';
             } else if (currentQuestion === 2) {
-                // Show specific symptom questions if any symptoms selected
                 const form2 = new FormData(document.getElementById('question-form-2'));
                 const selectedSymptoms = form2.getAll('symptoms');
+
                 if (selectedSymptoms.length > 0) {
                     document.getElementById('triage-question-3').style.display = 'block';
-                    // Show specific symptom attributes
                     selectedSymptoms.forEach((symptom) => {
-                        document.getElementById(`${symptom}-questions`).style.display = 'block';
+                        const symptomQuestions = document.getElementById(`${symptom}-questions`);
+                        if (symptomQuestions) {
+                            symptomQuestions.style.display = 'block';
+                        }
                     });
                 } else {
-                    // If no symptoms selected, skip to duration question
                     document.getElementById('triage-question-4').style.display = 'block';
                 }
             } else if (currentQuestion === 3) {
-                // Proceed to duration question
                 document.getElementById('triage-question-4').style.display = 'block';
+            } else if (currentQuestion === 4) {
+                document.getElementById('triage-question-5').style.display = 'block';
             }
         } else {
             form.reportValidity();
@@ -66,22 +69,29 @@
     }
 
     function submitTriage() {
+        const additionalInfoInput = document.getElementById('additional_info');
+        const additionalInfo = additionalInfoInput ? additionalInfoInput.value.trim() : '';
+
         if (!document.getElementById('question-form-4').checkValidity()) {
             document.getElementById('question-form-4').reportValidity();
             showAlert('Please select an option for the duration question.', 'danger');
             return;
         }
 
+        if (!additionalInfo) {
+            showAlert('Please provide additional information.', 'danger');
+            return;
+        }
+
         const form1 = new FormData(document.getElementById('question-form-1'));
         const form2 = new FormData(document.getElementById('question-form-2'));
-        const form3 = new FormData(document.getElementById('question-form-3')); // Specific symptoms
-        const form4 = new FormData(document.getElementById('question-form-4')); // Duration
+        const form3 = new FormData(document.getElementById('question-form-3'));
+        const form4 = new FormData(document.getElementById('question-form-4'));
 
-        const severeSymptoms = form1.getAll('severe-symptoms'); // Severe symptoms
-        const symptoms = form2.getAll('symptoms'); // Main symptoms
+        const severeSymptoms = form1.getAll('severe-symptoms');
+        const symptoms = form2.getAll('symptoms');
         const duration = form4.get('duration');
 
-        // Collect specific symptom attributes
         const specificSymptoms = {};
         symptoms.forEach((symptom) => {
             const attributes = [];
@@ -94,21 +104,20 @@
             }
         });
 
-        // Prepare data to send to backend
         const data = {
-            severeSymptoms: severeSymptoms,
-            symptoms: symptoms,
-            specificSymptoms: specificSymptoms,
-            duration: duration,
+            severeSymptoms,
+            symptoms,
+            specificSymptoms,
+            duration,
+            additionalInfo
         };
-        console.log('Submitting triage data:', data); // Debugging output
 
-        // Create a form to submit via POST
+        console.log('Submitting triage data:', data);
+
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '/triage/';
 
-        // CSRF token
         const csrfToken = '{{ csrf_token }}';
         const csrfInput = document.createElement('input');
         csrfInput.type = 'hidden';
@@ -116,7 +125,6 @@
         csrfInput.value = csrfToken;
         form.appendChild(csrfInput);
 
-        // Append data
         for (const key in data) {
             const input = document.createElement('input');
             input.type = 'hidden';

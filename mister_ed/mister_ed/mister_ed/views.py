@@ -38,9 +38,10 @@ def triage(request):
         symptoms = json.loads(request.POST.get('symptoms', '[]'))
         duration = request.POST.get('duration', '')
         specificSymptoms = json.loads(request.POST.get('specificSymptoms', '{}'))
-
+        additionalInfo = request.POST.get('additionalInfo', '').strip()
+        
         # Generate prompt for the API
-        user_prompt = generate_prompt(severeSymptoms, symptoms, specificSymptoms, duration)
+        user_prompt = generate_prompt(severeSymptoms, symptoms, specificSymptoms, duration, additionalInfo)
 
         # Print the data for debugging
         print('Triage data received:', {
@@ -48,6 +49,7 @@ def triage(request):
             'symptoms': symptoms,
             'specificSymptoms': specificSymptoms,
             'duration': duration,
+            'additionalInfo': additionalInfo,
             'prompt': user_prompt
         })
 
@@ -106,7 +108,7 @@ def triage(request):
     else:
         return render(request, 'triage/triage.html')
 
-def generate_prompt(severeSymptoms, symptoms, specificSymptoms, duration):
+def generate_prompt(severeSymptoms, symptoms, specificSymptoms, duration, additionalInfo):
     prompt = "Patient reports the following symptoms:\n"
 
     if severeSymptoms:
@@ -130,6 +132,9 @@ def generate_prompt(severeSymptoms, symptoms, specificSymptoms, duration):
 
     if duration:
         prompt += f"Duration: {duration}\n"
+
+    if additionalInfo:
+        prompt += f"Additional Information: {additionalInfo}\n"
 
     prompt += (
         "\nBased on these symptoms, what medical action(s) should the patient take? "
