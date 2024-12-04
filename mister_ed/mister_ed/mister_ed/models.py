@@ -18,8 +18,8 @@ class Patient(models.Model):
     )
     address = models.CharField(max_length=100, null=False, blank=False, default='')
     # Added latitude and longitude fields
-    lat = models.FloatField(null=True, blank=True)
-    lng = models.FloatField(null=True, blank=True)
+    lat = models.FloatField(null=False, blank=True, default=48.401936761021915)
+    lng = models.FloatField(null=False, blank=True, default=-123.34136076541516)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -56,6 +56,8 @@ class ED(models.Model):
     ed_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, null=False, blank=False)
     address = models.CharField(max_length=255, null=False, blank=False, default='')
+    lat = models.FloatField(null=False, blank=False)
+    lng = models.FloatField(null=False, blank=False)
 
 # ED Capacity model
 class EDCapacity(models.Model):
@@ -94,6 +96,7 @@ class MedicalStaff(models.Model):
 
 # Schedule model
 class Schedule(models.Model):
+    is_virtual = models.BooleanField(default=False)
     schedule_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE)

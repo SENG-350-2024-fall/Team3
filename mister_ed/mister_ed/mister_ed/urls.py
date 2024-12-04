@@ -20,4 +20,7 @@ urlpatterns = [
     path('resources/eating-on-budget/', views.eating_on_budget, name='eating_on_budget'),
     path('resources/resource-of-the-day/', views.resource_of_the_day, name='resource_of_the_day'),
     path("medical_records/", views.medical_records, name="medical_records"),
+    path('virtual_meetings/', views.virtual_meetings, name='virtual_meetings'),
+    path('ed_locations/', views.ed_locations, name='ed_locations'),
+    path('profile/', views.profile, name='profile'),
 ]

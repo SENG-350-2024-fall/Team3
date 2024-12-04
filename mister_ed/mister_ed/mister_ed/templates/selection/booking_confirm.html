@@ -11,7 +11,11 @@
         <h2>Confirm Booking</h2>
         <p>Are you sure you want to book the following appointment?</p>
         <ul>
-            <li><strong>Clinic:</strong> {{ schedule.clinic.name }}</li>
+            {% if schedule.is_virtual %}
+                <li><strong>Type:</strong> Virtual Meeting</li>
+            {% else %}
+                <li><strong>Clinic:</strong> {{ schedule.clinic.name }}</li>
+            {% endif %}
             <li><strong>Doctor:</strong> {{ schedule.doctor.name }}</li>
             <li><strong>Service:</strong> {{ schedule.service.service_name }}</li>
             <li><strong>Date:</strong> {{ schedule.available_date }}</li>
@@ -20,7 +24,11 @@
         <form method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary">Confirm Booking</button>
-            <a href="{% url 'appointment_list' %}" class="btn btn-secondary">Cancel</a>
+            {% if schedule.is_virtual %}
+                <a href="{% url 'virtual_meetings' %}" class="btn btn-secondary">Cancel</a>
+            {% else %}
+                <a href="{% url 'appointment_list' %}" class="btn btn-secondary">Cancel</a>
+            {% endif %}
         </form>
     </div>
 </body>

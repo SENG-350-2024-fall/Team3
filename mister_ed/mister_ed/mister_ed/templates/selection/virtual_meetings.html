@@ -1,37 +1,33 @@
-<!-- appointment_list.html -->
+<!-- virtual_meetings.html -->
 {% load static %}
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Available Appointments</title>
+    <title>Virtual Meetings</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
     <div class="container mt-5">
-        <h2>Available Appointments</h2>
+        <h2>Available Virtual Meetings</h2>
         {% if schedules %}
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>Clinic</th>
                     <th>Doctor</th>
                     <th>Service</th>
                     <th>Date</th>
                     <th>Time</th>
-                    <th>Distance (km)</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for schedule in schedules %}
                 <tr>
-                    <td>{{ schedule.clinic.name }}</td>
                     <td>{{ schedule.doctor.name }}</td>
                     <td>{{ schedule.service.service_name }}</td>
                     <td>{{ schedule.available_date }}</td>
                     <td>{{ schedule.available_time }}</td>
-                    <td>{{ schedule.distance|floatformat:2 }}</td>
                     <td>
                         <form method="get" action="{% url 'book_appointment' schedule.schedule_id %}">
                             <button type="submit" class="btn btn-primary">Book Appointment</button>
@@ -42,7 +38,7 @@
             </tbody>
         </table>
         {% else %}
-        <p>No available appointments at this time.</p>
+        <p>No virtual meetings available at this time.</p>
         {% endif %}
     </div>
 </body>

@@ -7,9 +7,9 @@ from datetime import datetime, timedelta
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 django.setup()
 
-from mister_ed.models import Clinic, Doctor, Service, Schedule
+from mister_ed.models import Clinic, Doctor, Service, Schedule, ED
 
-# Generate random lat/lng coordinates for clinics in the Victoria, BC region
+# Generate random lat/lng coordinates for the Victoria, BC region
 def generate_random_lat_lng():
     lat = random.uniform(48.4, 48.5)
     lng = random.uniform(-123.4, -123.3)
@@ -25,11 +25,28 @@ clinics_data = [
     ('Oak Bay Clinic', '222 Oak Bay Ave, Victoria, BC'),
 ]
 
+# Create clinics
 clinics = []
 for name, address in clinics_data:
     lat, lng = generate_random_lat_lng()
     clinic = Clinic.objects.create(name=name, address=address, lat=lat, lng=lng)
     clinics.append(clinic)
+
+# List of Emergency Departments
+eds_data = [
+    ('Victoria Regional ED', '15 Emergency Blvd, Victoria, BC'),
+    ('Island Health Emergency Services', '200 Health Ave, Victoria, BC'),
+    ('Peninsula General ED', '45 Peninsula Way, Saanichton, BC'),
+    ('Downtown Victoria Emergency', '300 Main St, Victoria, BC'),
+    ('Harborview ED', '25 Marine Dr, Victoria, BC'),
+]
+
+# Create EDs
+eds = []
+for name, address in eds_data:
+    lat, lng = generate_random_lat_lng()
+    ed = ED.objects.create(name=name, address=address, lat=lat, lng=lng)
+    eds.append(ed)
 
 # List of Doctors with specialties
 doctors_data = [
@@ -42,6 +59,7 @@ doctors_data = [
     ('Dr. Samantha White', 'General Practitioner'),
 ]
 
+# Create doctors
 doctors = []
 for name, specialty in doctors_data:
     doctor = Doctor.objects.create(name=name, specialty=specialty)
@@ -56,17 +74,17 @@ services_data = [
     ('Child Checkup', doctors[4]),  # Dr. Nancy Brown
     ('Brain Scan', doctors[5]),     # Dr. Alex Taylor
     ('Consultation', doctors[6]),   # Dr. Samantha White
-    ('Minor Surgery', doctors[0]),  # Dr. John Smith
-    ('Skin Biopsy', doctors[2]),    # Dr. Emily Wong
+    ('Virtual Consultation', doctors[0]),  # Virtual option
 ]
 
+# Create services
 services = []
 for service_name, doctor in services_data:
     service = Service.objects.create(service_name=service_name, doctor=doctor)
     services.append(service)
 
 # Function to generate schedules with some booked and some available slots
-def generate_schedules(doctor, clinic, service, num_weeks=4):
+def generate_schedules(doctor, clinic, service, num_weeks=4, is_virtual=False):
     start_date = datetime.today()
     days_of_week = [0, 2, 4]  # Monday, Wednesday, Friday
 
@@ -85,14 +103,16 @@ def generate_schedules(doctor, clinic, service, num_weeks=4):
                 available_date=date,
                 available_time=time,
                 service=service,
+                is_virtual=is_virtual,
                 is_booked=is_booked
             )
 
-# Generate schedules
+# Generate schedules for clinics
 for doctor in doctors:
     doctor_services = Service.objects.filter(doctor=doctor)
     for service in doctor_services:
         clinic = random.choice(clinics)
-        generate_schedules(doctor, clinic, service)
+        is_virtual = "Virtual" in service.service_name
+        generate_schedules(doctor, clinic, service, is_virtual=is_virtual)
 
-print("Database populated with clinics, doctors, services, and schedules.")
+print("Database populated with clinics, emergency departments, doctors, services, and schedules.")

@@ -4,6 +4,7 @@ import os
 import json
 import openai
 import logging
+import random
 from time import sleep
 from django.conf import settings
 from django.views.decorators.cache import cache_page
@@ -12,15 +13,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import LoginView
 from .forms import SignupForm
-from .models import Schedule, Appointment, ED, Doctor, Service, Clinic
+from .models import Schedule, Appointment, ED, Doctor, Service, Clinic, Patient
 from django.core.exceptions import ObjectDoesNotExist
+from math import radians, cos, sin, sqrt, atan2
 from django.utils import timezone
 from datetime import timedelta, time
 from dotenv import load_dotenv
+from .forms import ProfileForm
 
 # Load environment variables and set OpenAI API key
 load_dotenv()
 openai.api_key = os.getenv('OPENAI_API_KEY')
+logger = logging.getLogger(__name__)
 
 @login_required(login_url="/login")
 def home(request):
@@ -135,6 +139,12 @@ def generate_prompt(severeSymptoms, symptoms, specificSymptoms, duration):
 
     return prompt
 
+def generate_random_coordinates():
+    # Generate random coordinates around Victoria, BC
+    lat = random.uniform(48.4, 48.5)  # Latitude range for Victoria, BC
+    lng = random.uniform(-123.4, -123.3)  # Longitude range for Victoria, BC
+    return lat, lng
+
 def signup(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -195,8 +205,13 @@ def appointment_list(request):
         # Handle the POST request if selecting from options
         if request.method == 'POST':
             selected_option = request.POST.get('selected_option', '')
-            if selected_option != 'Clinic Visit':
-                # Redirect to home if the selected option is not 'Clinic Visit'
+            if selected_option == 'Clinic':
+                pass
+            elif selected_option == 'ED':
+                return redirect('ed_locations')
+            elif selected_option == 'Virtual Meeting':
+                return redirect('virtual_meetings')
+            else:
                 return redirect('home')
 
         # Proceed to fetch and display available appointments for GET requests or valid POST requests
@@ -207,6 +222,8 @@ def appointment_list(request):
         schedules = Schedule.objects.filter(is_booked=False)
 
         def haversine(lat1, lng1, lat2, lng2):
+            if lat1 is None or lng1 is None or lat2 is None or lng2 is None:
+                return float('inf')  # Return a large distance for missing coordinates
             R = 6371  # Earth radius in kilometers
             dlat = radians(lat2 - lat1)
             dlng = radians(lng2 - lng1)
@@ -217,9 +234,10 @@ def appointment_list(request):
         schedule_list = []
         for schedule in schedules:
             clinic = schedule.clinic
-            distance = haversine(client_lat, client_lng, clinic.lat, clinic.lng)
-            schedule.distance = distance
-            schedule_list.append(schedule)
+            if clinic.lat is not None and clinic.lng is not None:
+                distance = haversine(client_lat, client_lng, clinic.lat, clinic.lng)
+                schedule.distance = distance
+                schedule_list.append(schedule)
 
         schedule_list.sort(key=lambda x: (x.available_date, x.available_time, x.distance))
 
@@ -233,30 +251,6 @@ def appointment_list(request):
     except Exception as e:
         logger.error(f"Unknown error in appointment_list: {str(e)}")
         return render(request, 'errors/500.html', status=500)
-
-@login_required
-def book_appointment(request, schedule_id):
-    max_retries = 3
-    schedule = Schedule.objects.get(schedule_id=schedule_id)
-    
-    if request.method == 'POST':
-        for attempt in range(max_retries):
-            try:
-                schedule.is_booked = True
-                schedule.save()
-                
-                appointment = Appointment.objects.create(
-                    user=request.user,
-                    schedule=schedule
-                )
-
-                return render(request, 'selection/booking_confirmation.html', {'appointment': appointment})
-            except Exception as e:
-                logger.error(f"Booking attempt {attempt + 1} failed: {e}")
-                sleep(1)  # Brief delay before retry
-        return render(request, 'errors/booking_failed.html')
-    
-    return render(request, 'selection/booking_confirm.html', {'schedule': schedule})
 
 @login_required
 def resources(request):
@@ -356,3 +350,23 @@ def medical_records(request):
         # Add more records as needed
     ]
     return render(request, "home/medical_records.html", {"records": records})
+
+@login_required
+def profile(request):
+    user = request.user
+    patient = user.patient  # Assuming OneToOneField relationship exists
+
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=patient)
+        if form.is_valid():
+            # Save Patient data
+            form.save()
+            # Save email to User model
+            user.email = form.cleaned_data['email']
+            user.save()
+            return redirect('profile')
+    else:
+        # Populate initial data with the email from the User model
+        form = ProfileForm(instance=patient, initial={'email': user.email})
+    
+    return render(request, 'home/profile.html', {'form': form})
