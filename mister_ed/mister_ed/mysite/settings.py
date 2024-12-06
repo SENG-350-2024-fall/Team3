@@ -187,4 +187,4 @@ EMAIL_HOST = 'smtp.gmail.com'  # Gmail SMTP server
 EMAIL_PORT = 587  # Use port 587 for TLS
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'your_email@gmail.com'  # Your email address
-EMAIL_HOST_PASSWORD = 'your_password'  # Your email password or app password
+EMAIL_HOST_PASSWORD = 'your password'  # Your email password or app password
