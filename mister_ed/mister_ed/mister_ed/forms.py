@@ -12,10 +12,21 @@ class ProfileForm(forms.ModelForm):
         fields = ['first_name', 'last_name', 'date_of_birth', 'phone_number', 'address']
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super(ProfileForm, self).__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
-            
+
+        if user:
+            self.fields['email'].initial = user.email
+
+    def save(self, user=None, *args, **kwargs):
+        patient = super(ProfileForm, self).save(*args, **kwargs)
+        if user:
+            user.email = self.cleaned_data['email']
+            user.save()
+        return patient
+
 class SignupForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=True)

@@ -4,6 +4,7 @@ import uuid
 from django.core.validators import RegexValidator
 from datetime import datetime
 from django.utils import timezone
+from django.http import JsonResponse
 
 # Patient model
 class Patient(models.Model):
@@ -58,6 +59,11 @@ class ED(models.Model):
     address = models.CharField(max_length=255, null=False, blank=False, default='')
     lat = models.FloatField(null=False, blank=False)
     lng = models.FloatField(null=False, blank=False)
+    queue = models.JSONField(default=list)  # Default to an empty list for the queue
+
+    def __str__(self):
+        return f'{self.name}'
+
 
 # ED Capacity model
 class EDCapacity(models.Model):

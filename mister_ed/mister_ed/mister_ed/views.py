@@ -20,6 +20,10 @@ from django.utils import timezone
 from datetime import timedelta, time
 from dotenv import load_dotenv
 from .forms import ProfileForm
+from django.utils.timezone import now
+from django.http import JsonResponse
+from django.core.mail import send_mail
+from django.conf import settings
 
 # Load environment variables and set OpenAI API key
 load_dotenv()
@@ -42,7 +46,7 @@ def triage(request):
         
         # Generate prompt for the API
         user_prompt = generate_prompt(severeSymptoms, symptoms, specificSymptoms, duration, additionalInfo)
-
+        
         # Print the data for debugging
         print('Triage data received:', {
             'severeSymptoms': severeSymptoms,
@@ -200,7 +204,7 @@ def virtual_meetings(request):
 
 @login_required
 def ed_locations(request):
-    eds = ED.objects.all()
+    eds = ED.objects.all().order_by('queue')  # Optionally order by load (low to high)
     return render(request, 'selection/ed_locations.html', {'eds': eds})
 
 @cache_page(60 * 15)
@@ -359,19 +363,284 @@ def medical_records(request):
 @login_required
 def profile(request):
     user = request.user
-    patient = user.patient  # Assuming OneToOneField relationship exists
 
-    if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=patient)
-        if form.is_valid():
-            # Save Patient data
-            form.save()
-            # Save email to User model
-            user.email = form.cleaned_data['email']
-            user.save()
-            return redirect('profile')
-    else:
-        # Populate initial data with the email from the User model
-        form = ProfileForm(instance=patient, initial={'email': user.email})
+    try:
+        patient = user.patient
+    except Patient.DoesNotExist:
+        return render(request, 'errors/404.html', status=404)
+
+    return render(request, 'home/profile.html', {'user': user, 'patient': patient})
+
+
+@login_required
+def get_ed_queue(request, ed_id):
+    """
+    Fetch the queue for a specific ED and return it as JSON.
+    """
+    try:
+        ed = ED.objects.get(id=ed_id)
+    except ED.DoesNotExist:
+        return JsonResponse({"error": "ED not found"}, status=404)
+
+    queue = ed.queue
+    return JsonResponse({"queue": queue})
+
+
+@login_required
+def update_ed_queue(request):
+    """
+    Simulate queue movement for all EDs.
+    Randomly adds or removes patients from each ED's queue.
+    """
+    eds = ED.objects.all()
+    for ed in eds:
+        # Randomly add a new patient
+        if random.choice([True, False]):
+            ed.queue.append(generate_random_triage())
+
+        # Randomly remove a patient
+        if ed.queue and random.choice([True, False]):
+            ed.queue.pop(0)
+
+        ed.save()
+
+    return JsonResponse({"message": "ED queues updated successfully."})
+
+
+def generate_random_triage():
+    """
+    Generate random triage data for a patient.
+    """
+    severe_symptoms = random.sample(['Chest pain', 'Severe bleeding', 'Unconscious'], k=random.randint(0, 2))
+    symptoms = random.sample(['Fever', 'Headache', 'Cough', 'Nausea'], k=random.randint(1, 3))
+    duration = random.choice(['Less than a day', '1-3 days', 'More than 3 days'])
+    specific_symptoms = {
+        symptom: random.sample(['High', 'Persistent', 'Sudden'], k=random.randint(0, 2))
+        for symptom in symptoms
+    }
+    return {
+        "severeSymptoms": severe_symptoms,
+        "symptoms": symptoms,
+        "duration": duration,
+        "specificSymptoms": specific_symptoms
+    }
+
+@login_required
+def ed_detail(request, ed_id):
+    """
+    Render a detailed view of an ED, including its queue information and the user's determined position in the queue.
+    """
+    try:
+        ed = ED.objects.get(ed_id=ed_id)
+    except ED.DoesNotExist:
+        return render(request, 'errors/404.html', status=404)
+
+    # User's triage data
+    try:
+        patient = request.user.patient
+        triage_data = generate_random_triage()  # Replace with real triage data if available
+    except Patient.DoesNotExist:
+        return JsonResponse({"error": "Patient data not found"}, status=404)
+
     
-    return render(request, 'home/profile.html', {'form': form})
+    # Call ChatGPT API to determine placement
+    user_position = -1
+    try:
+        chat_prompt = generate_placement_prompt(triage_data, ed)
+        print(chat_prompt)
+        openai_response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a triage assistant for emergency departments."},
+                {"role": "user", "content": chat_prompt},
+            ],
+            max_tokens=100,
+        )
+        assistant_reply = openai_response.choices[0].message.content.strip()
+        print()
+        print(assistant_reply)
+        user_position = int(assistant_reply)
+        user_position = max(0, min(user_position, len(ed.queue)))  # Clamp to valid range
+        request.session['user_position'] = user_position
+    except Exception as e:
+        print(f"Error calling ChatGPT API for placement: {e}")
+
+    # Calculate total queue load
+    capacity = 100  # Assuming maximum capacity of 100 users
+    load_percentage = min(len(ed.queue) / capacity * 100, 100)
+
+    context = {
+        "ed": ed,
+        "queue": ed.queue,
+        "queue_length": len(ed.queue),
+        "user_position": user_position if user_position != -1 else "Error determining position",
+        "load_percentage": int(load_percentage),
+    }
+    return render(request, 'selection/ed_detail.html', context)
+
+def generate_placement_prompt(triage_data, ed):
+    """
+    Generate a prompt to ask ChatGPT where the user should be placed in the queue.
+    """
+    queue_data = "\n".join([str(item) for item in ed.queue])
+    prompt = (
+        f"The current queue at {ed.name} is:\n{queue_data}\n"
+        "A new patient has the following triage data:\n"
+        f"{json.dumps(triage_data, indent=2)}\n"
+        "Based on the patient's severity and symptoms, where should they be placed in the queue? "
+        "Respond with the position as an integer (e.g., 0 for the front, 1 for second, etc.). DO NOT RESPOND WITH ANYTHING ELSE JUST THE NUMBER"
+        "Additionally, to keep it more interesting, feel free to be a bit more lenient with the placement, so its not in the very front or the very end."
+        f"If there are no users, output 0, else find output a value between 0 (start of the queue) and {len(ed.queue)} (endof the queue)."
+    )
+    return prompt
+
+
+@login_required
+def ed_locations(request):
+    """
+    Displays EDs with their respective load percentages.
+    """
+    eds = ED.objects.all()
+    context = {
+        "eds": eds
+    }
+    return render(request, 'selection/ed_locations.html', context)
+
+
+@login_required
+def update_ed_loads(request):
+    """
+    Simulates the queue changes for all EDs and returns the updated queue data
+    including load percentage and queue length.
+    """
+    eds = ED.objects.all()
+    ed_data = []
+
+    for ed in eds:
+        # Simulate changes in the queue
+        if random.choice([True, False]):  # 50% chance to add a new entry
+            ed.queue.append(generate_random_triage())
+        if ed.queue and random.choice([True, False]):  # 50% chance to remove an entry
+            ed.queue.pop(0)
+        ed.save()
+
+        # Calculate load percentage
+        capacity = 100  # Assuming maximum capacity of 100 users
+        load_percentage = min(len(ed.queue) / capacity * 100, 100)
+
+        ed_data.append({
+            "name": ed.name,
+            "queue_length": len(ed.queue),
+            "load": int(load_percentage),
+        })
+
+    return JsonResponse({"eds": ed_data})
+
+@login_required
+def proceed_to_ed(request, ed_id):
+    """
+    Handles the user's decision to proceed with the selected ED and places them at the correct position in the queue.
+    """
+    try:
+        ed = ED.objects.get(ed_id=ed_id)
+    except ED.DoesNotExist:
+        return render(request, 'errors/404.html', status=404)
+
+    # Retrieve triage data and position from session
+    triage_data = request.session.get('triage_data')
+    user_position = request.session.get('user_position')
+
+    if not triage_data or user_position is None:
+        logger.error("Triage data or user position not found in session.")
+        return render(request, 'errors/500.html', status=500)
+
+    # Ensure the user is inserted at the correct position
+    if triage_data not in ed.queue:
+        ed.queue.insert(user_position, triage_data)
+        ed.save()
+
+    logger.info(f"ED {ed.name}: User placed at position {user_position}")
+    return render(request, 'selection/proceed_confirmation.html', {
+        "ed": ed,
+        "user_position": user_position,
+    })
+
+
+@login_required
+def update_position(request, ed_id):
+    """
+    Updates the user's position in the queue for the given ED.
+    """
+    try:
+        ed = ED.objects.get(ed_id=ed_id)
+    except ED.DoesNotExist:
+        logger.error(f"ED with id {ed_id} not found.")
+        return JsonResponse({"error": "ED not found"}, status=404)
+
+    # Retrieve triage data from the session
+    triage_data = request.session.get('triage_data')
+    if not triage_data:
+        logger.error("Triage data not found in session.")
+        return JsonResponse({"error": "Triage data not found"}, status=400)
+
+    # Simulate queue movement: remove only the first item
+    if ed.queue and ed.queue[0] != triage_data:  # Avoid removing the user's data prematurely
+        removed = ed.queue.pop(0)
+        ed.save()
+        logger.info(f"ED {ed.name}: Removed from queue: {removed}")
+
+    # Update the user's position if still in the queue
+    user_position = None
+    if triage_data in ed.queue:
+        user_position = ed.queue.index(triage_data)
+        request.session['user_position'] = user_position  # Update in session
+    else:
+        # If not in queue, user is at the front
+        user_position = 0
+        request.session['user_position'] = user_position
+
+    logger.info(f"ED {ed.name}: User position updated to {user_position}")
+    return JsonResponse({"user_position": user_position})
+
+@login_required
+def final_confirmation(request, ed_id):
+    """
+    Displays the final confirmation page after the user has been processed in the queue
+    and sends an email notification to the specified address.
+    """
+    try:
+        ed = ED.objects.get(ed_id=ed_id)
+    except ED.DoesNotExist:
+        return render(request, 'errors/404.html', status=404)
+
+    # Email content
+    subject = "User Proceeded to ED Queue"
+    message = (
+        f"A user has completed the queue for {ed.name}.\n\n"
+        "Details:\n"
+        f"Name: {request.user.get_full_name()}\n"
+        f"Email: {request.user.email}\n"
+        f"ED Name: {ed.name}\n"
+        f"ED Address: {ed.address}\n"
+        "Action: The user is ready to proceed to the ED."
+    )
+    recipient_list = ['gregory.karachevtsev@gmail.com']  # Your email address
+
+    # Send the email
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            recipient_list,
+            fail_silently=False,
+        )
+        print("Email sent successfully.")  # Debug statement
+    except Exception as e:
+        print(f"Error sending email: {e}")  # Debug statement
+
+    # Render the confirmation page
+    message = f"You are now ready to proceed to {ed.name}. Please follow the instructions provided."
+    return render(request, 'selection/final_confirmation.html', {
+        "message": message,
+    })

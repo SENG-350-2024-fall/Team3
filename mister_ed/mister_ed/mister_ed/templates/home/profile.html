@@ -19,20 +19,21 @@
             font-size: 2em;
             color: #333;
         }
-        .form-group {
+        .info-group {
             margin-bottom: 15px;
             text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
         }
-        .form-group label {
+        .info-group label {
             display: block;
             font-weight: bold;
             margin-bottom: 5px;
+            color: #555;
         }
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        .info-group .value {
+            font-size: 1.1em;
+            color: #333;
         }
         .btn-container {
             margin-top: 20px;
@@ -50,33 +51,29 @@
     </div>
     <div class="profile-container">
         <h3>My Profile</h3>
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="id_first_name">First Name</label>
-                {{ form.first_name }}
-            </div>
-            <div class="form-group">
-                <label for="id_last_name">Last Name</label>
-                {{ form.last_name }}
-            </div>
-            <div class="form-group">
-                <label for="id_email">Email</label>
-                {{ form.email }}
-            </div>
-            <div class="form-group">
-                <label for="id_phone_number">Phone Number</label>
-                {{ form.phone_number }}
-            </div>
-            <div class="form-group">
-                <label for="id_address">Address</label>
-                {{ form.address }}
-            </div>
-            <div class="btn-container">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
-            </div>
-        </form>
+        <div class="info-group">
+            <label>First Name</label>
+            <div class="value">{{ patient.first_name }}</div>
+        </div>
+        <div class="info-group">
+            <label>Last Name</label>
+            <div class="value">{{ patient.last_name }}</div>
+        </div>
+        <div class="info-group">
+            <label>Email</label>
+            <div class="value">{{ user.email }}</div>
+        </div>
+        <div class="info-group">
+            <label>Phone Number</label>
+            <div class="value">{{ patient.phone_number }}</div>
+        </div>
+        <div class="info-group">
+            <label>Address</label>
+            <div class="value">{{ patient.address }}</div>
+        </div>
+        <div class="btn-container">
+            <a href="{% url 'home' %}" class="btn btn-primary">Back</a>
+        </div>
     </div>
 </body>
 </html>

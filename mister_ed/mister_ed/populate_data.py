@@ -9,11 +9,30 @@ django.setup()
 
 from mister_ed.models import Clinic, Doctor, Service, Schedule, ED
 
+
 # Generate random lat/lng coordinates for the Victoria, BC region
 def generate_random_lat_lng():
     lat = random.uniform(48.4, 48.5)
     lng = random.uniform(-123.4, -123.3)
     return lat, lng
+
+
+# Function to generate random triage data
+def generate_random_triage():
+    severe_symptoms = random.sample(['Chest pain', 'Severe bleeding', 'Unconscious'], k=random.randint(0, 2))
+    symptoms = random.sample(['Fever', 'Headache', 'Cough', 'Nausea'], k=random.randint(1, 3))
+    duration = random.choice(['Less than a day', '1-3 days', 'More than 3 days'])
+    specific_symptoms = {
+        symptom: random.sample(['High', 'Persistent', 'Sudden'], k=random.randint(0, 2))
+        for symptom in symptoms
+    }
+    return {
+        "severeSymptoms": severe_symptoms,
+        "symptoms": symptoms,
+        "duration": duration,
+        "specificSymptoms": specific_symptoms
+    }
+
 
 # List of Clinics in Victoria, BC with lat/lng coordinates
 clinics_data = [
@@ -41,11 +60,12 @@ eds_data = [
     ('Harborview ED', '25 Marine Dr, Victoria, BC'),
 ]
 
-# Create EDs
+# Create EDs with initial random load and queues
 eds = []
 for name, address in eds_data:
     lat, lng = generate_random_lat_lng()
-    ed = ED.objects.create(name=name, address=address, lat=lat, lng=lng)
+    queue = [generate_random_triage() for _ in range(random.randint(5, 15))]  # Generate random queue
+    ed = ED.objects.create(name=name, address=address, lat=lat, lng=lng, queue=queue)
     eds.append(ed)
 
 # List of Doctors with specialties
@@ -115,4 +135,4 @@ for doctor in doctors:
         is_virtual = "Virtual" in service.service_name
         generate_schedules(doctor, clinic, service, is_virtual=is_virtual)
 
-print("Database populated with clinics, emergency departments, doctors, services, and schedules.")
+print("Database populated with clinics, emergency departments, doctors, services, schedules, and ED queues.")

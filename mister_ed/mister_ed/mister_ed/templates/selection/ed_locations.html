@@ -1,20 +1,55 @@
 {% extends "home/base.html" %}
 
-{% block title %}Emergency Department Locations{% endblock %}
-
 {% block content %}
 <div class="container mt-5">
-    <h2>Emergency Departments Near You</h2>
-    <ul class="list-group mt-4">
-        {% for ed in eds %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-                <h5>{{ ed.name }}</h5>
-                <p>{{ ed.address }}</p>
-            </div>
-            <a href="https://maps.google.com/?q={{ ed.lat }},{{ ed.lng }}" target="_blank" class="btn btn-primary">View on Map</a>
-        </li>
-        {% endfor %}
-    </ul>
+    <h2>Emergency Department Loads</h2>
+    <table class="table table-striped" id="ed-load-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Queue Length</th>
+                <th>Load (%)</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ed in eds %}
+            <tr>
+                <td>{{ ed.name }}</td>
+                <td>{{ ed.address }}</td>
+                <td id="queue-{{ ed.name|slugify }}">{{ ed.queue|length }}</td>
+                <td id="load-{{ ed.name|slugify }}">0%</td>
+                <td>
+                    <a href="{% url 'ed_detail' ed.ed_id %}" class="btn btn-primary">View Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
+
+<script>
+    function fetchAndUpdateEdLoads() {
+        fetch("{% url 'update_ed_loads' %}")
+            .then(response => response.json())
+            .then(data => {
+                data.eds.forEach(ed => {
+                    const slugifiedName = ed.name.replace(/\s+/g, '-').toLowerCase();
+                    const queueCell = document.querySelector(`#queue-${slugifiedName}`);
+                    if (queueCell) {
+                        queueCell.textContent = ed.queue_length;
+                    }
+                    const loadCell = document.querySelector(`#load-${slugifiedName}`);
+                    if (loadCell) {
+                        loadCell.textContent = `${ed.load}%`;
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching ED loads:', error));
+    }
+
+    // Refresh data every second
+    setInterval(fetchAndUpdateEdLoads, 1000);
+</script>
 {% endblock %}

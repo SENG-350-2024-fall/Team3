@@ -1,0 +1,87 @@
+{% extends "home/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- ED Name and Address -->
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="text-primary">{{ ed.name }}</h2>
+            <p class="text-muted">
+                <i class="fas fa-map-marker-alt"></i> {{ ed.address }}
+            </p>
+        </div>
+        <div class="col text-end">
+            <h4>Total Load: <span class="text-danger">{{ load_percentage }}%</span></h4>
+            <h4>Queue Length: <span class="text-info">{{ queue_length }}</span></h4>
+        </div>
+    </div>
+
+    <!-- Determine Position Section -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5>Your Position in the Queue</h5>
+        </div>
+        <div class="card-body">
+            {% if user_position is not None %}
+                <p class="lead">
+                    <i class="fas fa-user-check text-success"></i> You are positioned at 
+                    <strong>{{ user_position }}</strong> in the queue.
+                </p>
+            {% else %}
+                <p class="lead">
+                    <i class="fas fa-user-clock text-warning"></i> Your position is not yet determined. 
+                    Click the button below to calculate.
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" name="determine_position" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> Determine Position
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Queue Details Table -->
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5>Queue Details</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Position</th>
+                        <th>Symptoms</th>
+                        <th>Severity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in queue %}
+                    <tr class="{% if user_position is not None and forloop.counter0 == user_position %}table-warning{% endif %}">
+                        <td>{{ forloop.counter0 }}</td>
+                        <td>{{ item.symptoms|join:", " }}</td>
+                        <td>{{ item.severeSymptoms|join:", " }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="mt-4 d-flex justify-content-between">
+        <a href="{% url 'ed_locations' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to ED Locations
+        </a>
+        {% if user_position is not None %}
+        <form method="post" action="{% url 'proceed' ed.ed_id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">
+                Proceed <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

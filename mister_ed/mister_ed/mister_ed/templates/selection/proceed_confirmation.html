@@ -1,0 +1,80 @@
+{% extends "home/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-primary">{{ ed.name }}</h2>
+    <p class="text-muted">
+        <i class="fas fa-map-marker-alt"></i> {{ ed.address }}
+    </p>
+
+    <!-- Queue Update Section -->
+    <div class="card mt-4">
+        <div class="card-header bg-success text-white">
+            <h5>Queue Status</h5>
+        </div>
+        <div class="card-body text-center">
+            <h3>Your Position: <span id="user-position" class="text-info">{{ user_position }}</span></h3>
+            <p class="text-muted" id="queue-status">We are updating your position in real time...</p>
+            <div class="d-flex justify-content-center mt-4">
+                <form method="post" action="{% url 'final_confirmation' ed.ed_id %}">
+                    {% csrf_token %}
+                    <button id="proceed-button" class="btn btn-success" style="display: none;">
+                        <i class="fas fa-check"></i> Proceed to Next Step
+                    </button>
+                </form>
+            </div>
+            
+        </div>
+        
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="mt-4 d-flex justify-content-center">
+        <a href="{% url 'ed_locations' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to ED Locations
+        </a>
+    </div>
+</div>
+
+<script>
+    let position = {{ user_position }};
+    const edId = "{{ ed.ed_id }}";
+
+    function updateQueuePosition() {
+        console.debug("Fetching updated position for ED:", edId);  // Debug: Fetch request initiated
+
+        fetch(`/update_position/${edId}/`)  // Call the backend to get the updated position
+            .then(response => {
+                console.debug("Response status:", response.status);  // Debug: Response status
+                return response.json();
+            })
+            .then(data => {
+                console.debug("Received data:", data);  // Debug: Log the received data
+
+                const userPositionElement = document.getElementById("user-position");
+                const queueStatusElement = document.getElementById("queue-status");
+                const proceedButton = document.getElementById("proceed-button");
+
+                position = data.user_position;  // Update the position
+                userPositionElement.textContent = position;
+
+                if (position === 0) {
+                    console.debug("User is at position 0. Displaying proceed button.");  // Debug: Position 0
+                    queueStatusElement.textContent = "You're at the front of the queue. You're good to go!";
+                    proceedButton.style.display = "block";  // Show the proceed button
+                } else {
+                    console.debug("User position updated to:", position);  // Debug: Updated position
+                    queueStatusElement.textContent = "We are updating your position in real time...";
+                    proceedButton.style.display = "none";
+                }
+            })
+            .catch(error => {
+                console.error("Error updating position:", error);  // Debug: Log any errors
+            });
+    }
+
+    // Poll the position every 5 seconds
+    setInterval(updateQueuePosition, 5000);
+</script>
+
+{% endblock %}

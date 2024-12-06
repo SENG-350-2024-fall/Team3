@@ -23,4 +23,9 @@ urlpatterns = [
     path('virtual_meetings/', views.virtual_meetings, name='virtual_meetings'),
     path('ed_locations/', views.ed_locations, name='ed_locations'),
     path('profile/', views.profile, name='profile'),
-]
+    path('update_ed_loads/', views.update_ed_loads, name='update_ed_loads'),
+    path('ed_detail/<uuid:ed_id>/', views.ed_detail, name='ed_detail'),
+    path('proceed/<uuid:ed_id>/', views.proceed_to_ed, name='proceed'),
+    path('update_position/<uuid:ed_id>/', views.update_position, name='update_position'),
+    path('final_confirmation/<uuid:ed_id>/', views.final_confirmation, name='final_confirmation'),
+]   
