@@ -2,12 +2,13 @@ from django.contrib import admin
 from django.urls import include, path
 
 from . import views
+from .views import CustomLoginView
 
 urlpatterns = [
+    path("login/", CustomLoginView.as_view(), name="login"),
     path("", include("django.contrib.auth.urls")),
     path("home/", views.home, name="home"),
     path("triage/", views.triage, name="triage"),
-    path("login/", views.login_view, name="login"),
     path("signup/", views.signup, name="signup"),
     path("appointments/", views.appointment_list, name="appointment_list"),
     path("book_appointment/<uuid:schedule_id>/", views.book_appointment, name="book_appointment"),
@@ -28,4 +29,7 @@ urlpatterns = [
     path('proceed/<uuid:ed_id>/', views.proceed_to_ed, name='proceed'),
     path('update_position/<uuid:ed_id>/', views.update_position, name='update_position'),
     path('final_confirmation/<uuid:ed_id>/', views.final_confirmation, name='final_confirmation'),
+    path("custom-admin/dashboard/", views.admin_dashboard, name="admin_dashboard"),
+    path("staff/dashboard/", views.medical_staff_dashboard, name="medical_staff_dashboard"),
+    
 ]   

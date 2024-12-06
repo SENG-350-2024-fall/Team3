@@ -24,6 +24,17 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'resources' %}">Resources</a>
                     </li>
+                    {% if user.is_authenticated %}
+                        {% if user.admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
+                        </li>
+                        {% elif user.medicalstaff %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'medical_staff_dashboard' %}">Staff Dashboard</a>
+                        </li>
+                        {% endif %}
+                    {% endif %}
                 </ul>
                 <ul class="navbar-nav ms-auto align-items-center">
                     {% if user.is_authenticated %}

@@ -76,9 +76,9 @@ class EDCapacity(models.Model):
 # Admin model
 class Admin(models.Model):
     admin_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.TextField(max_length=255, null=False, blank=False)
-    phone_number = models.TextField(max_length=255, null=False, blank=False)
-
+    name = models.TextField(max_length=255)
+    phone_number = models.TextField(max_length=255)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 # Severity Level model
 class SeverityLevel(models.Model):
     severity_level_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -94,6 +94,7 @@ class TriageCriteria(models.Model):
 
 # Medical Staff model
 class MedicalStaff(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='medicalstaff')
     staff_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     role = models.CharField(max_length=255)

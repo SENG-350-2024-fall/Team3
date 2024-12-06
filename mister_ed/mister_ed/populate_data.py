@@ -3,19 +3,19 @@ import os
 import django
 import random
 from datetime import datetime, timedelta
+import uuid
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 django.setup()
 
-from mister_ed.models import Clinic, Doctor, Service, Schedule, ED
-
+from django.contrib.auth.models import User
+from mister_ed.models import Clinic, Doctor, Service, Schedule, ED, MedicalStaff, Admin
 
 # Generate random lat/lng coordinates for the Victoria, BC region
 def generate_random_lat_lng():
     lat = random.uniform(48.4, 48.5)
     lng = random.uniform(-123.4, -123.3)
     return lat, lng
-
 
 # Function to generate random triage data
 def generate_random_triage():
@@ -32,7 +32,6 @@ def generate_random_triage():
         "duration": duration,
         "specificSymptoms": specific_symptoms
     }
-
 
 # List of Clinics in Victoria, BC with lat/lng coordinates
 clinics_data = [
@@ -68,15 +67,54 @@ for name, address in eds_data:
     ed = ED.objects.create(name=name, address=address, lat=lat, lng=lng, queue=queue)
     eds.append(ed)
 
+# Create a User and MedicalStaff entry
+medical_staff_users = [
+    ("drsmith", "Dr. John Smith", "password123", "Doctor", "Cardiology", "drsmith@example.com", "555-1234"),
+    ("nursejane", "Jane Doe", "password123", "Nurse", "Emergency Medicine", "nursejane@example.com", "555-5678"),
+]
+
+for username, name, password, role, specializing, email, contact in medical_staff_users:
+    user = User.objects.create_user(
+        username=username,
+        password=password,
+        first_name=name.split()[0],
+        last_name=name.split()[1],
+        email=email,
+    )
+    MedicalStaff.objects.create(
+        user=user,
+        name=name,
+        role=role,
+        specializing=specializing,
+        contact_info=contact,
+    )
+
+# Create a User and Admin entry
+admin_users = [
+    ("adminuser", "Admin User", "password123", "adminuser@example.com", "555-9999"),
+]
+
+for username, name, password, email, contact in admin_users:
+    user = User.objects.create_user(
+        username=username,
+        password=password,
+        first_name=name.split()[0],
+        last_name=name.split()[1],
+        email=email,
+    )
+    Admin.objects.create(
+        user=user,
+        name=name,
+        phone_number=contact,
+    )
+
 # List of Doctors with specialties
 doctors_data = [
-    ('Dr. John Smith', 'General Practitioner'),
     ('Dr. Sarah Lee', 'Cardiologist'),
     ('Dr. Emily Wong', 'Dermatologist'),
     ('Dr. Michael Green', 'Orthopedic Surgeon'),
     ('Dr. Nancy Brown', 'Pediatrician'),
     ('Dr. Alex Taylor', 'Neurologist'),
-    ('Dr. Samantha White', 'General Practitioner'),
 ]
 
 # Create doctors
@@ -87,14 +125,11 @@ for name, specialty in doctors_data:
 
 # List of Services
 services_data = [
-    ('Consultation', doctors[0]),  # Dr. John Smith
-    ('Heart Surgery', doctors[1]),  # Dr. Sarah Lee
-    ('Skin Check', doctors[2]),     # Dr. Emily Wong
-    ('Knee Surgery', doctors[3]),   # Dr. Michael Green
-    ('Child Checkup', doctors[4]),  # Dr. Nancy Brown
-    ('Brain Scan', doctors[5]),     # Dr. Alex Taylor
-    ('Consultation', doctors[6]),   # Dr. Samantha White
-    ('Virtual Consultation', doctors[0]),  # Virtual option
+    ('Heart Surgery', doctors[0]),  # Dr. Sarah Lee
+    ('Skin Check', doctors[1]),     # Dr. Emily Wong
+    ('Knee Surgery', doctors[2]),   # Dr. Michael Green
+    ('Child Checkup', doctors[3]),  # Dr. Nancy Brown
+    ('Brain Scan', doctors[4]),     # Dr. Alex Taylor
 ]
 
 # Create services
@@ -103,17 +138,15 @@ for service_name, doctor in services_data:
     service = Service.objects.create(service_name=service_name, doctor=doctor)
     services.append(service)
 
-# Function to generate schedules with some booked and some available slots
-def generate_schedules(doctor, clinic, service, num_weeks=4, is_virtual=False):
+# Function to generate schedules
+def generate_schedules(doctor, clinic, service, num_weeks=4):
     start_date = datetime.today()
     days_of_week = [0, 2, 4]  # Monday, Wednesday, Friday
 
     for week in range(num_weeks):
         available_day = random.choice(days_of_week)
         date = (start_date + timedelta(days=(week * 7 + available_day))).date()
-        time_slots_choices = [['09:00', '10:00'], ['14:00'], ['11:00', '12:00']]
-        time_slots = random.choice(time_slots_choices)
-
+        time_slots = ['09:00', '10:00', '11:00']
         for time_str in time_slots:
             time = datetime.strptime(time_str, '%H:%M').time()
             is_booked = random.choice([True, False])
@@ -123,8 +156,7 @@ def generate_schedules(doctor, clinic, service, num_weeks=4, is_virtual=False):
                 available_date=date,
                 available_time=time,
                 service=service,
-                is_virtual=is_virtual,
-                is_booked=is_booked
+                is_booked=is_booked,
             )
 
 # Generate schedules for clinics
@@ -132,7 +164,6 @@ for doctor in doctors:
     doctor_services = Service.objects.filter(doctor=doctor)
     for service in doctor_services:
         clinic = random.choice(clinics)
-        is_virtual = "Virtual" in service.service_name
-        generate_schedules(doctor, clinic, service, is_virtual=is_virtual)
+        generate_schedules(doctor, clinic, service)
 
-print("Database populated with clinics, emergency departments, doctors, services, schedules, and ED queues.")
+print("Database populated with clinics, emergency departments, medical staff, admin users, doctors, services, schedules, and ED queues.")

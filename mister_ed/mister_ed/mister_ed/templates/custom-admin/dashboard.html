@@ -1,0 +1,49 @@
+{% extends "home/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Welcome, {{ admin.name }}</h2>
+    <h3>System Overview</h3>
+    <h4>Emergency Departments</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Queue Length</th>
+                <th>Load Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ed in eds %}
+            <tr>
+                <td>{{ ed.name }}</td>
+                <td>{{ ed.queue|length }}</td>
+                <td>{{ ed.queue|length|floatformat:2 }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h4>Medical Staff</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Specialization</th>
+                <th>Contact Info</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in staff %}
+            <tr>
+                <td>{{ member.name }}</td>
+                <td>{{ member.role }}</td>
+                <td>{{ member.specializing }}</td>
+                <td>{{ member.contact_info }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

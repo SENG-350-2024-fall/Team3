@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import LoginView
 from .forms import SignupForm
-from .models import Schedule, Appointment, ED, Doctor, Service, Clinic, Patient
+from .models import Schedule, Appointment, ED, Doctor, Service, Clinic, Patient, MedicalStaff
 from django.core.exceptions import ObjectDoesNotExist
 from math import radians, cos, sin, sqrt, atan2
 from django.utils import timezone
@@ -24,7 +24,28 @@ from django.utils.timezone import now
 from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.contrib.auth.views import LoginView
 
+class CustomLoginView(LoginView):
+    def get_success_url(self):
+        user = self.request.user
+        print(f"User {user.username} logged in.")  # Debug statement
+        if hasattr(user, 'medicalstaff'):
+            print("Redirecting to medical staff dashboard.")  # Debug statement
+            return reverse('medical_staff_dashboard')
+        elif hasattr(user, 'admin'):
+            print("Redirecting to admin dashboard.")  # Debug statement
+            return reverse('admin_dashboard')
+        print("Redirecting to home.")  # Debug statement
+        return reverse('home')
+    
+    def post(self, request, *args, **kwargs):
+        print(f"CSRF token in cookie: {request.COOKIES.get('csrftoken')}")
+        print(f"CSRF token in POST: {request.POST.get('csrfmiddlewaretoken')}")
+        return super().post(request, *args, **kwargs)
+    
 # Load environment variables and set OpenAI API key
 load_dotenv()
 openai.api_key = os.getenv('OPENAI_API_KEY')
@@ -644,3 +665,44 @@ def final_confirmation(request, ed_id):
     return render(request, 'selection/final_confirmation.html', {
         "message": message,
     })
+
+
+@login_required
+def admin_dashboard(request):
+    """
+    Dashboard for Admin users to monitor EDs and manage staff.
+    """
+    try:
+        admin = request.user.admin
+    except AttributeError:
+        return render(request, 'errors/403.html', status=403)  # Access denied for non-admins
+
+    eds = ED.objects.all()
+    staff = MedicalStaff.objects.all()
+
+    context = {
+        "admin": admin,
+        "eds": eds,
+        "staff": staff,
+    }
+    return render(request, 'custom-admin/dashboard.html', context)
+
+@login_required
+def medical_staff_dashboard(request):
+    """
+    Dashboard for Medical Staff to view appointments and schedules.
+    """
+    try:
+        staff = MedicalStaff.objects.get(name=f"{request.user.first_name} {request.user.last_name}")
+    except MedicalStaff.DoesNotExist:
+        return render(request, 'errors/403.html', status=403)  # Access denied for non-medical staff
+
+    # Fetch appointments related to the staff's specialization
+    appointments = Appointment.objects.filter(schedule__service__doctor__name=staff.name)
+
+    context = {
+        "staff": staff,
+        "appointments": appointments,
+    }
+    return render(request, 'staff/dashboard.html', context)
+

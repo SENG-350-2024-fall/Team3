@@ -1,0 +1,28 @@
+{% extends "home/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Welcome, {{ staff.name }}</h2>
+    <h3>Your Schedule</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Service</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
+            <tr>
+                <td>{{ appointment.user.first_name }} {{ appointment.user.last_name }}</td>
+                <td>{{ appointment.schedule.available_date }}</td>
+                <td>{{ appointment.schedule.available_time }}</td>
+                <td>{{ appointment.schedule.service.service_name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
