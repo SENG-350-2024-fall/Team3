@@ -2,48 +2,141 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2>Welcome, {{ admin.name }}</h2>
-    <h3>System Overview</h3>
-    <h4>Emergency Departments</h4>
-    <table class="table">
+    <h2>Admin Dashboard</h2>
+
+    <h3>Emergency Departments</h3>
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Queue Length</th>
-                <th>Load Percentage</th>
+                <th>Load (%)</th>
             </tr>
         </thead>
-        <tbody>
-            {% for ed in eds %}
-            <tr>
-                <td>{{ ed.name }}</td>
-                <td>{{ ed.queue|length }}</td>
-                <td>{{ ed.queue|length|floatformat:2 }}%</td>
-            </tr>
-            {% endfor %}
+        <tbody id="ed-table-body">
+            <!-- Real-time ED data will be populated here -->
         </tbody>
     </table>
 
-    <h4>Medical Staff</h4>
-    <table class="table">
+    <h3>Users</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody id="user-table-body">
+            <!-- Real-time user data will be populated here -->
+        </tbody>
+    </table>
+
+    <h3>Doctors</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Specialty</th>
+            </tr>
+        </thead>
+        <tbody id="doctor-table-body">
+            <!-- Real-time doctor data will be populated here -->
+        </tbody>
+    </table>
+
+    <h3>Medical Staff</h3>
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Role</th>
-                <th>Specialization</th>
+                <th>Specializing</th>
                 <th>Contact Info</th>
             </tr>
         </thead>
-        <tbody>
-            {% for member in staff %}
-            <tr>
-                <td>{{ member.name }}</td>
-                <td>{{ member.role }}</td>
-                <td>{{ member.specializing }}</td>
-                <td>{{ member.contact_info }}</td>
-            </tr>
-            {% endfor %}
+        <tbody id="staff-table-body">
+            <!-- Real-time staff data will be populated here -->
         </tbody>
     </table>
 </div>
+
+
+<script>
+    function fetchRealtimeData() {
+        fetch("{% url 'admin_realtime_data' %}")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Update ED queue and load data
+                const edTable = document.getElementById("ed-table-body");
+                edTable.innerHTML = ""; // Clear the existing rows
+                data.eds.forEach(ed => {
+                    const row = `
+                        <tr>
+                            <td>${ed.name}</td>
+                            <td>${ed.queue_length}</td>
+                            <td>${ed.load_percentage.toFixed(2)}%</td>
+                        </tr>`;
+                    edTable.innerHTML += row;
+                });
+
+                // Update user data
+                const userTable = document.getElementById("user-table-body");
+                userTable.innerHTML = ""; // Clear the existing rows
+                data.users.forEach(user => {
+                    const row = `
+                        <tr>
+                            <td>${user.username}</td>
+                            <td>${user.first_name}</td>
+                            <td>${user.last_name}</td>
+                            <td>${user.email}</td>
+                        </tr>`;
+                    userTable.innerHTML += row;
+                });
+
+                // Update doctor data
+                const doctorTable = document.getElementById("doctor-table-body");
+                doctorTable.innerHTML = ""; // Clear the existing rows
+                data.doctors.forEach(doctor => {
+                    const row = `
+                        <tr>
+                            <td>${doctor.name}</td>
+                            <td>${doctor.specialty}</td>
+                        </tr>`;
+                    doctorTable.innerHTML += row;
+                });
+
+                // Update staff data
+                const staffTable = document.getElementById("staff-table-body");
+                staffTable.innerHTML = ""; // Clear the existing rows
+                data.staff.forEach(staff => {
+                    const row = `
+                        <tr>
+                            <td>${staff.name}</td>
+                            <td>${staff.role}</td>
+                            <td>${staff.specializing}</td>
+                            <td>${staff.contact_info}</td>
+                        </tr>`;
+                    staffTable.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error("Error fetching real-time data:", error);
+            });
+    }
+
+    // Fetch data every 5 seconds
+    setInterval(fetchRealtimeData, 1000);
+
+    // Fetch data initially when the page loads
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchRealtimeData();
+    });
+</script>
 {% endblock %}

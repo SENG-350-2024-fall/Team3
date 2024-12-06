@@ -31,5 +31,7 @@ urlpatterns = [
     path('final_confirmation/<uuid:ed_id>/', views.final_confirmation, name='final_confirmation'),
     path("custom-admin/dashboard/", views.admin_dashboard, name="admin_dashboard"),
     path("staff/dashboard/", views.medical_staff_dashboard, name="medical_staff_dashboard"),
-    
+    path("custom-admin/ed_queue_data/", views.ed_queue_data, name="ed_queue_data"),
+    path("custom-admin/realtime-data/", views.admin_realtime_data, name="admin_realtime_data"),
+
 ]   

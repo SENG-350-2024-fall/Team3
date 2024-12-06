@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import LoginView
 from .forms import SignupForm
-from .models import Schedule, Appointment, ED, Doctor, Service, Clinic, Patient, MedicalStaff
+from .models import Schedule, Appointment, ED, Doctor, Service, Clinic, Patient, MedicalStaff, User
 from django.core.exceptions import ObjectDoesNotExist
 from math import radians, cos, sin, sqrt, atan2
 from django.utils import timezone
@@ -456,19 +456,21 @@ def ed_detail(request, ed_id):
     except ED.DoesNotExist:
         return render(request, 'errors/404.html', status=404)
 
-    # User's triage data
+    # Try to fetch the associated Patient object
     try:
         patient = request.user.patient
-        triage_data = generate_random_triage()  # Replace with real triage data if available
     except Patient.DoesNotExist:
-        return JsonResponse({"error": "Patient data not found"}, status=404)
+        # Log the error and return an informative message
+        logger.error(f"Patient data not found for user: {request.user.username}")
+        return render(request, 'errors/404.html', {"message": "Patient data not found. Please complete your profile."})
 
-    
-    # Call ChatGPT API to determine placement
+    # Generate triage data for the user
+    triage_data = generate_random_triage()
+
+    # Determine the user's position in the queue
     user_position = -1
     try:
         chat_prompt = generate_placement_prompt(triage_data, ed)
-        print(chat_prompt)
         openai_response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -478,13 +480,11 @@ def ed_detail(request, ed_id):
             max_tokens=100,
         )
         assistant_reply = openai_response.choices[0].message.content.strip()
-        print()
-        print(assistant_reply)
         user_position = int(assistant_reply)
         user_position = max(0, min(user_position, len(ed.queue)))  # Clamp to valid range
         request.session['user_position'] = user_position
     except Exception as e:
-        print(f"Error calling ChatGPT API for placement: {e}")
+        logger.error(f"Error calling ChatGPT API for placement: {e}")
 
     # Calculate total queue load
     capacity = 100  # Assuming maximum capacity of 100 users
@@ -498,6 +498,7 @@ def ed_detail(request, ed_id):
         "load_percentage": int(load_percentage),
     }
     return render(request, 'selection/ed_detail.html', context)
+
 
 def generate_placement_prompt(triage_data, ed):
     """
@@ -565,26 +566,41 @@ def proceed_to_ed(request, ed_id):
     try:
         ed = ED.objects.get(ed_id=ed_id)
     except ED.DoesNotExist:
+        logger.error(f"ED with id {ed_id} does not exist.")
         return render(request, 'errors/404.html', status=404)
 
-    # Retrieve triage data and position from session
+    # Get the user's Patient object
+    try:
+        patient = request.user.patient
+    except Patient.DoesNotExist:
+        logger.error(f"Patient object not found for user: {request.user.username}")
+        return render(request, 'errors/500.html', {"message": "Patient data is missing. Please complete your profile."})
+
+    # Generate triage data for this patient if not already in session
     triage_data = request.session.get('triage_data')
+    if not triage_data:
+        triage_data = generate_random_triage()
+        request.session['triage_data'] = triage_data
+
+    # Get user position from session
     user_position = request.session.get('user_position')
+    if user_position is None:
+        # Fallback: Determine user position dynamically
+        user_position = max(0, len(ed.queue) - 1)  # Default to end of queue if position is not set
+        logger.warning(f"User position not found in session. Defaulting to position {user_position}.")
 
-    if not triage_data or user_position is None:
-        logger.error("Triage data or user position not found in session.")
-        return render(request, 'errors/500.html', status=500)
-
-    # Ensure the user is inserted at the correct position
+    # Ensure the user is inserted at the correct position in the queue
     if triage_data not in ed.queue:
         ed.queue.insert(user_position, triage_data)
         ed.save()
+        logger.info(f"Inserted user {request.user.username} at position {user_position} in ED {ed.name}'s queue.")
 
-    logger.info(f"ED {ed.name}: User placed at position {user_position}")
     return render(request, 'selection/proceed_confirmation.html', {
         "ed": ed,
         "user_position": user_position,
+        "queue_length": len(ed.queue),
     })
+
 
 
 @login_required
@@ -670,7 +686,7 @@ def final_confirmation(request, ed_id):
 @login_required
 def admin_dashboard(request):
     """
-    Dashboard for Admin users to monitor EDs and manage staff.
+    Custom Admin dashboard for real-time ED monitoring and user management.
     """
     try:
         admin = request.user.admin
@@ -678,31 +694,95 @@ def admin_dashboard(request):
         return render(request, 'errors/403.html', status=403)  # Access denied for non-admins
 
     eds = ED.objects.all()
+    users = User.objects.exclude(is_staff=True)  # Exclude admin/staff accounts from regular users
+    doctors = Doctor.objects.all()
     staff = MedicalStaff.objects.all()
 
     context = {
         "admin": admin,
         "eds": eds,
+        "users": users,
+        "doctors": doctors,
         "staff": staff,
     }
     return render(request, 'custom-admin/dashboard.html', context)
 
+# Add a JSON endpoint for real-time queue updates
+@login_required
+def ed_queue_data(request):
+    """
+    Provide real-time ED queue and load data.
+    """
+    eds = ED.objects.all()
+    ed_data = []
+    for ed in eds:
+        ed_data.append({
+            "name": ed.name,
+            "queue_length": len(ed.queue),
+            "load_percentage": min(len(ed.queue) / 100 * 100, 100),  # Assuming capacity of 100
+        })
+    return JsonResponse({"eds": ed_data})
+
+
+
 @login_required
 def medical_staff_dashboard(request):
     """
-    Dashboard for Medical Staff to view appointments and schedules.
+    Dashboard for Medical Staff to view all registered users.
     """
     try:
-        staff = MedicalStaff.objects.get(name=f"{request.user.first_name} {request.user.last_name}")
-    except MedicalStaff.DoesNotExist:
+        staff = request.user.medicalstaff
+    except AttributeError:
         return render(request, 'errors/403.html', status=403)  # Access denied for non-medical staff
 
-    # Fetch appointments related to the staff's specialization
-    appointments = Appointment.objects.filter(schedule__service__doctor__name=staff.name)
+    # Fetch all regular users (exclude staff/admin accounts)
+    users = User.objects.exclude(is_staff=True)
 
     context = {
         "staff": staff,
-        "appointments": appointments,
+        "users": users,
     }
     return render(request, 'staff/dashboard.html', context)
 
+
+
+@login_required
+def admin_realtime_data(request):
+    """
+    Provide real-time data for the admin dashboard, including ED queues, users, doctors, and staff.
+    """
+    # Fetch all EDs and their current queue/load data
+    eds = ED.objects.all()
+    ed_data = []
+    for ed in eds:
+        if random.choice([True, False]):  # 50% chance to add a new entry
+            ed.queue.append(generate_random_triage())
+        if ed.queue and random.choice([True, False]):  # 50% chance to remove an entry
+            ed.queue.pop(0)
+        ed.save()
+
+        # Calculate load percentage
+        capacity = 100  # Assuming maximum capacity of 100 users
+        load_percentage = min(len(ed.queue) / capacity * 100, 100)
+        
+        ed_data.append({
+            "name": ed.name,
+            "queue_length": len(ed.queue),
+            "load_percentage": len(ed.queue) / 100 * 100,  # Assuming capacity of 100 for demonstration
+        })
+
+    # Fetch all users
+    users = list(User.objects.exclude(is_staff=True).values('username', 'first_name', 'last_name', 'email'))
+
+    # Fetch all doctors
+    doctors = list(Doctor.objects.all().values('name', 'specialty'))
+
+    # Fetch all medical staff
+    staff = list(MedicalStaff.objects.all().values('name', 'role', 'specializing', 'contact_info'))
+
+    return JsonResponse({
+        "eds": ed_data,
+        "users": users,
+        "doctors": doctors,
+        "staff": staff,
+    })

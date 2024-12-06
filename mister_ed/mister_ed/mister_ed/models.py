@@ -8,22 +8,17 @@ from django.http import JsonResponse
 
 # Patient model
 class Patient(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='patient')
-    patient_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    first_name = models.CharField(max_length=255, null=False, blank=False)
-    last_name = models.CharField(max_length=255, null=False, blank=False)
-    date_of_birth = models.DateField(null=False, blank=False)
-    phone_number = models.CharField(
-        max_length=10,
-        validators=[RegexValidator(regex=r'^\d{10}$', message='Phone number must be exactly 10 digits.')]
-    )
-    address = models.CharField(max_length=100, null=False, blank=False, default='')
-    # Added latitude and longitude fields
-    lat = models.FloatField(null=False, blank=True, default=48.401936761021915)
-    lng = models.FloatField(null=False, blank=True, default=-123.34136076541516)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="patient")
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    date_of_birth = models.DateField()
+    phone_number = models.CharField(max_length=10, validators=[
+        RegexValidator(regex=r'^\d{10}$', message='Phone number must be exactly 10 digits.')
+    ])
+    address = models.CharField(max_length=100, default="")
+    lat = models.FloatField(blank=True, default=48.401936761021915)
+    lng = models.FloatField(blank=True, default=-123.34136076541516)
 
-    def __str__(self):
-        return f'{self.first_name} {self.last_name}'
 
 # Clinic model
 class Clinic(models.Model):

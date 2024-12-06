@@ -3,23 +3,25 @@
 {% block content %}
 <div class="container mt-5">
     <h2>Welcome, {{ staff.name }}</h2>
-    <h3>Your Schedule</h3>
+    <h3>Registered Users</h3>
     <table class="table">
         <thead>
             <tr>
-                <th>Patient</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Service</th>
+                <th>#</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>First Name</th>
+                <th>Last Name</th>
             </tr>
         </thead>
         <tbody>
-            {% for appointment in appointments %}
+            {% for user in users %}
             <tr>
-                <td>{{ appointment.user.first_name }} {{ appointment.user.last_name }}</td>
-                <td>{{ appointment.schedule.available_date }}</td>
-                <td>{{ appointment.schedule.available_time }}</td>
-                <td>{{ appointment.schedule.service.service_name }}</td>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.last_name }}</td>
             </tr>
             {% endfor %}
         </tbody>
