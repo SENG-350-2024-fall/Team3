@@ -27,6 +27,8 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.contrib.auth.views import LoginView
+from django.core.paginator import Paginator
+
 
 class CustomLoginView(LoginView):
     def get_success_url(self):
@@ -220,8 +222,20 @@ def book_appointment(request, schedule_id):
 
 @login_required
 def virtual_meetings(request):
-    available_schedules = Schedule.objects.filter(is_virtual=True, is_booked=False)
-    return render(request, 'selection/virtual_meetings.html', {'schedules': available_schedules})
+    """
+    Fetch and display available virtual meetings with pagination.
+    """
+    available_schedules = Schedule.objects.filter(is_virtual=True, is_booked=False).order_by('available_date', 'available_time')
+
+    # Add pagination
+    paginator = Paginator(available_schedules, 10)  # Show 10 schedules per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'schedules': page_obj,
+    }
+    return render(request, 'selection/virtual_meetings.html', context)
 
 @login_required
 def ed_locations(request):

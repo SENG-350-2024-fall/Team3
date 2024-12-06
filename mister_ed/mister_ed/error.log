@@ -3384,3 +3384,40 @@ Traceback (most recent call last):
            ^^^^^^^
 NameError: name 'ed_data' is not defined. Did you mean: 'ed_detail'?
 "GET /custom-admin/realtime-data/ HTTP/1.1" 500 76266
+Internal Server Error: /ed_detail/7965e318-1b35-406c-9b79-ae2123b3ee9f/
+Traceback (most recent call last):
+  File "C:\Users\grego\Documents\uvic\SENG 350\Milestone 2\ED_matcher\Team3\mister_ed\mister_ed\mister_ed\views.py", line 455, in ed_detail
+    ed = ED.objects.get(ed_id=ed_id)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\db\models\query.py", line 649, in get
+    raise self.model.DoesNotExist(
+mister_ed.models.ED.DoesNotExist: ED matching query does not exist.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\Documents\uvic\SENG 350\Milestone 2\ED_matcher\Team3\mister_ed\mister_ed\mister_ed\views.py", line 457, in ed_detail
+    return render(request, 'errors/404.html', status=404)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\grego\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: errors/404.html
+"GET /ed_detail/7965e318-1b35-406c-9b79-ae2123b3ee9f/ HTTP/1.1" 500 104642
